@@ -44,7 +44,7 @@ public class SimulationViewer extends JFrame {
 
     public static class VisualiserPanel extends JPanel {
 
-        private ArrayList<Body> bodies = new ArrayList<Body>();
+        private ArrayList<Body> bodies = new ArrayList<>();
         private long nIter;
         private double vt;
         private double energy;
