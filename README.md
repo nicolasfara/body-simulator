@@ -32,7 +32,8 @@ calcolando l’evoluzione temporale per un certo numero di passi Nsteps - con Ns
 velocità iniziali possono essere definite in modo casuale. L’obiettivo è:
   1. Massimizzare le performance, sfruttando tutte le capacità di calcolo del generico  sistema di elaborazione su cui è
    mandato in esecuzione il programma
-  2. Organizzare il programma in modo modulare, estendibile.  
+  2. Organizzare il programma in modo modulare, estendibile.
+
 Analizzare le performance del programma considerando valori di N pari a 100, 1000, 5000 e raggio dei corpi pari a 0.01, 
 con Nsteps pari a 500, 1000, 5000, calcolando lo speedup, e valutando il suo comportamento usando sia il numero ottimale
 teorico di thread, sia considerando prove diverse con un numero variabile di threads per verificarne la scalabilità.   
@@ -46,3 +47,14 @@ Usare JPF per verificare la correttezza dell’estensione.
 
 - FACOLTATIVO Estendere la simulazione includendo la modalità passo-passo - ovvero ad ogni frame visualizzato 
 procedere al calcolo e visualizzazione del successivo mediante la pressione di un pulsante apposito.
+
+### Note (vincoli)
+
+- Le soluzioni devono basarsi rigorosamente su un **modello di concorrenza multi-threaded, usando esclusivamente 
+semafori e monitor come meccanismi di coordinazione**
+
+- La consegna consiste in una cartella “Assignment-01” compressa (formato zip) contenente le seguenti directory:
+  * directory **src** con i sorgenti del programma
+  * directory doc che contiene una breve relazione in PDF (report.pdf) che include analisi del problema e descrizione 
+  della soluzione proposta, usando il formalismo che si ritiene più appropriato per descrivere la dinamica del sistema, 
+  e prove di performance che analizzano il comportamento del programma e lo speedup
