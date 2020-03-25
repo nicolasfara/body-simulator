@@ -1,4 +1,4 @@
-package it.unibo.pcd;
+package it.unibo.pcd.model;
 
 public class Velocity {
     public double x,y;

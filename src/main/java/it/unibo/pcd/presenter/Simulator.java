@@ -1,4 +1,10 @@
-package it.unibo.pcd;
+package it.unibo.pcd.presenter;
+
+import it.unibo.pcd.view.SimulationViewer;
+import it.unibo.pcd.model.Body;
+import it.unibo.pcd.model.Boundary;
+import it.unibo.pcd.model.Position;
+import it.unibo.pcd.model.Velocity;
 
 import java.util.*;
 

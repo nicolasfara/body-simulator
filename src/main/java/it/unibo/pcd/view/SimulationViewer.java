@@ -1,4 +1,7 @@
-package it.unibo.pcd;
+package it.unibo.pcd.view;
+
+import it.unibo.pcd.model.Body;
+import it.unibo.pcd.model.Position;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -58,6 +61,7 @@ public class SimulationViewer extends JFrame {
             dy = h/2 - 20;
         }
 
+        @Override
         public void paint(Graphics g){
             Graphics2D g2 = (Graphics2D) g;
 

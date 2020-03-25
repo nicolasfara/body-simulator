@@ -1,5 +1,8 @@
 package it.unibo.pcd;
 
+import it.unibo.pcd.presenter.Simulator;
+import it.unibo.pcd.view.SimulationViewer;
+
 /**
  * Bodies simulation - legacy code: sequential, unstructured
  *
