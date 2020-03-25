@@ -84,10 +84,9 @@ public class SimulatorPresenter implements Contract.Presenter {
 
             if (mView != null) {
                 mView.updateView(bodies, vt, iter);
+            } else {
+                System.out.println("Iteration number: " + iter);
             }
-
-            System.out.println("Hell");
-
         }
     }
 }
