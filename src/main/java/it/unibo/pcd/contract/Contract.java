@@ -13,7 +13,6 @@ public interface Contract {
     }
 
     interface Presenter extends BasePresenter {
-        // TODO
         void execute(final long nIterations);
     }
 }
