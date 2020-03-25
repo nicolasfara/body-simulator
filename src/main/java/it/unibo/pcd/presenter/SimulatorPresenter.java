@@ -1,6 +1,6 @@
 package it.unibo.pcd.presenter;
 
-import it.unibo.pcd.Contract;
+import it.unibo.pcd.contract.Contract;
 import it.unibo.pcd.model.Body;
 import it.unibo.pcd.model.Boundary;
 import it.unibo.pcd.model.Position;
