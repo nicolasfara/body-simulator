@@ -29,7 +29,7 @@ public class Simulator {
         /* test with 1000 small bodies */
 
         Random rand = new Random(System.currentTimeMillis());
-        bodies = new ArrayList<Body>();
+        bodies = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
             double x = bounds.getX0() + rand.nextDouble()*(bounds.getX1() - bounds.getX0());
             double y = bounds.getX0() + rand.nextDouble()*(bounds.getX1() - bounds.getX0());
