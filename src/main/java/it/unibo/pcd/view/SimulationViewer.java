@@ -1,5 +1,6 @@
 package it.unibo.pcd.view;
 
+import it.unibo.pcd.Contract;
 import it.unibo.pcd.model.Body;
 import it.unibo.pcd.model.Position;
 
@@ -9,9 +10,13 @@ import java.awt.RenderingHints;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 
-public class SimulationViewer extends JFrame {
+public class SimulationViewer extends JFrame implements Contract.View {
+    // Contract Presenter
+    private Contract.Presenter mPresenter;
+
     private VisualiserPanel panel;
 
     /**
@@ -36,18 +41,29 @@ public class SimulationViewer extends JFrame {
         setVisible(true);
     }
 
-    public void display(ArrayList<Body> bodies, double vt, long iter){
+    private void display(List<Body> bodies, double vt, long iter){
         try {
             SwingUtilities.invokeAndWait(() -> {
                 panel.display(bodies, vt, iter);
             });
         } catch (Exception ex) {
+            ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void updateView(final List<Body> bodies, final double vt, final long iter) {
+        display(bodies, vt, iter);
+    }
+
+    @Override
+    public void setPresenter(Contract.Presenter presenter) {
+        mPresenter = presenter;
     }
 
     public static class VisualiserPanel extends JPanel {
 
-        private ArrayList<Body> bodies = new ArrayList<>();
+        private List<Body> bodies = new ArrayList<>();
         private long nIter;
         private double vt;
         private double energy;
@@ -82,7 +98,7 @@ public class SimulationViewer extends JFrame {
             g2.drawString("Bodies: " + bodies.size() + " - vt: " + time + " - nIter: " + nIter, 2, 20);
         }
 
-        public void display(ArrayList<Body> bodies, double vt, long iter){
+        public void display(List<Body> bodies, double vt, long iter){
             this.bodies = bodies;
             this.vt = vt;
             this.nIter = iter;

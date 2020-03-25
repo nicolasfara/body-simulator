@@ -1,42 +1,29 @@
 package it.unibo.pcd.presenter;
 
-import it.unibo.pcd.view.SimulationViewer;
+import it.unibo.pcd.Contract;
 import it.unibo.pcd.model.Body;
 import it.unibo.pcd.model.Boundary;
 import it.unibo.pcd.model.Position;
 import it.unibo.pcd.model.Velocity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-public class Simulator {
-    private SimulationViewer viewer;
+public class SimulatorPresenter implements Contract.Presenter {
+    private Contract.View mView = null;
 
-    /* bodies in the field */
-    ArrayList<Body> bodies;
-
+    private List<Body> bodies;
     /* boundary of the field */
     private Boundary bounds;
 
-    public Simulator(SimulationViewer viewer){
-        this.viewer = viewer;
-
-        /* initializing boundary and bodies */
-
+    public SimulatorPresenter(final int bodiesCount) {
         bounds = new Boundary(-1.0,-1.0,1.0,1.0);
-
-        /* test with 3 big bodies */
-        /*
-        bodies = new ArrayList<Body>();
-        bodies.add(new Body(new Position(-0.5,0), new Velocity(0.005,0), 0.05));
-        bodies.add(new Body(new Position(0,0.05), new Velocity(0,0), 0.05));
-        bodies.add(new Body(new Position(0.07,-0.1), new Velocity(0,0), 0.05));
-        */
-
-        /* test with 1000 small bodies */
 
         Random rand = new Random(System.currentTimeMillis());
         bodies = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
+
+        for (int i = 0; i < bodiesCount; i++) {
             double x = bounds.getX0() + rand.nextDouble()*(bounds.getX1() - bounds.getX0());
             double y = bounds.getX0() + rand.nextDouble()*(bounds.getX1() - bounds.getX0());
             double dx = -1 + rand.nextDouble()*2;
@@ -44,10 +31,15 @@ public class Simulator {
             Body b = new Body(new Position(x, y), new Velocity(dx*speed,Math.sqrt(1 - dx*dx)*speed), 0.01);
             bodies.add(b);
         }
-
     }
 
-    public void execute() {
+    public SimulatorPresenter(final Contract.View mView, final int bodiesCount) {
+        this(bodiesCount);
+        this.mView = mView;
+    }
+
+    @Override
+    public void execute(final long nIterations) {
 
         /* init virtual time */
 
@@ -55,15 +47,14 @@ public class Simulator {
         double dt = 0.1;
 
         long iter = 0;
-        long nIterations = 10000;
 
         /* simulation loop */
 
-        while (iter < nIterations){
+        while (iter < nIterations) {
 
             /* compute bodies new pos */
 
-            for (Body b: bodies) {
+            for (Body b : bodies) {
                 b.updatePos(dt);
             }
 
@@ -81,7 +72,7 @@ public class Simulator {
 
             /* check boundaries */
 
-            for (Body b: bodies) {
+            for (Body b : bodies) {
                 b.checkAndSolveBoundaryCollision(bounds);
             }
 
@@ -90,11 +81,13 @@ public class Simulator {
             vt = vt + dt;
             iter++;
 
-            /* display current stage */
 
-            viewer.display(bodies, vt, iter);
+            if (mView != null) {
+                mView.updateView(bodies, vt, iter);
+            }
+
+            System.out.println("Hell");
 
         }
     }
-
 }

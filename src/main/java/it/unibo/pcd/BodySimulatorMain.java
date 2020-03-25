@@ -1,6 +1,6 @@
 package it.unibo.pcd;
 
-import it.unibo.pcd.presenter.Simulator;
+import it.unibo.pcd.presenter.SimulatorPresenter;
 import it.unibo.pcd.view.SimulationViewer;
 
 /**
@@ -10,9 +10,10 @@ import it.unibo.pcd.view.SimulationViewer;
  */
 public class BodySimulatorMain {
     public static void main(String[] args) {
-        SimulationViewer viewer = new SimulationViewer(620,620);
+        SimulationViewer viewer = new SimulationViewer(620, 620);
+        SimulatorPresenter presenter = new SimulatorPresenter(viewer, 500);
+        viewer.setPresenter(presenter);
 
-        Simulator sim = new Simulator(viewer);
-        sim.execute();
+        presenter.execute(10000);
     }
 }
