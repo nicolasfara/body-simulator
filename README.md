@@ -37,8 +37,8 @@ velocità iniziali possono essere definite in modo casuale. L’obiettivo è:
 Analizzare le performance del programma considerando valori di N pari a 100, 1000, 5000 e raggio dei corpi pari a 0.01, 
 con Nsteps pari a 500, 1000, 5000, calcolando lo speedup, e valutando il suo comportamento usando sia il numero ottimale
 teorico di thread, sia considerando prove diverse con un numero variabile di threads per verificarne la scalabilità.   
- Usare JPF per verificare la correttezza del programma, considerandone la parte più significativa in merito, 
- opportunamente semplificata.
+Usare JPF per verificare la correttezza del programma, considerandone la parte più significativa in merito, 
+opportunamente semplificata.
 
 - Estendere la simulazione includendo una GUI con pulsanti start/stop per lanciare/ fermare la simulazione e 
 visualizzare l’andamento, includendo informazioni circa il tempo virtuale. Analizzare la reattività del programma, il 

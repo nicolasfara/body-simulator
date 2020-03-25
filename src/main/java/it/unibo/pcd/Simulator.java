@@ -1,5 +1,8 @@
 package it.unibo.pcd;
 
+import com.almasb.fxgl.app.GameApplication;
+import it.unibo.pcd.view.SimulationViewer;
+
 import java.util.*;
 
 public class Simulator {
@@ -12,7 +15,6 @@ public class Simulator {
     private Boundary bounds;
 
     public Simulator(SimulationViewer viewer){
-        this.viewer = viewer;
 
         /* initializing boundary and bodies */
 
@@ -30,15 +32,15 @@ public class Simulator {
 
         Random rand = new Random(System.currentTimeMillis());
         bodies = new ArrayList<Body>();
-        for (int i = 0; i < 1000; i++) {
+        /*for (int i = 0; i < 10; i++) {
             double x = bounds.getX0() + rand.nextDouble()*(bounds.getX1() - bounds.getX0());
             double y = bounds.getX0() + rand.nextDouble()*(bounds.getX1() - bounds.getX0());
             double dx = -1 + rand.nextDouble()*2;
             double speed = rand.nextDouble()*0.05;
             Body b = new Body(new Position(x, y), new Velocity(dx*speed,Math.sqrt(1 - dx*dx)*speed), 0.01);
             bodies.add(b);
-        }
-
+        }/*
+        //viewer.setBodies(bodies);
     }
 
     public void execute() {
@@ -86,8 +88,7 @@ public class Simulator {
 
             /* display current stage */
 
-            viewer.display(bodies, vt, iter);
-
+            viewer.display(vt, iter);
         }
     }
 
