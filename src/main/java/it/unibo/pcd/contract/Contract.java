@@ -1,4 +1,4 @@
-package it.unibo.pcd;
+package it.unibo.pcd.contract;
 
 import it.unibo.pcd.model.Body;
 import it.unibo.pcd.presenter.BasePresenter;
