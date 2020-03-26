@@ -1,14 +1,10 @@
 package it.unibo.pcd.presenter;
 
 import it.unibo.pcd.contract.Contract;
-import it.unibo.pcd.model.Body;
-import it.unibo.pcd.model.Boundary;
-import it.unibo.pcd.model.Position;
-import it.unibo.pcd.model.Velocity;
+import it.unibo.pcd.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class SimulatorPresenter implements Contract.Presenter {
     private Contract.View mView = null;
@@ -19,18 +15,9 @@ public class SimulatorPresenter implements Contract.Presenter {
 
     public SimulatorPresenter(final int bodiesCount) {
         bounds = new Boundary(-1.0,-1.0,1.0,1.0);
-
-        Random rand = new Random(System.currentTimeMillis());
         bodies = new ArrayList<>();
 
-        for (int i = 0; i < bodiesCount; i++) {
-            double x = bounds.getX0() + rand.nextDouble()*(bounds.getX1() - bounds.getX0());
-            double y = bounds.getX0() + rand.nextDouble()*(bounds.getX1() - bounds.getX0());
-            double dx = -1 + rand.nextDouble()*2;
-            double speed = rand.nextDouble()*0.05;
-            Body b = new Body(new Position(x, y), new Velocity(dx*speed,Math.sqrt(1 - dx*dx)*speed), 0.01);
-            bodies.add(b);
-        }
+        bodies.addAll(BodyFactory.getBodiesAtRandomPosition(bounds, bodiesCount));
     }
 
     public SimulatorPresenter(final Contract.View mView, final int bodiesCount) {
