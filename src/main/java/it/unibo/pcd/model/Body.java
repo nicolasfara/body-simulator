@@ -92,28 +92,27 @@ public class Body {
     }
 
     public static void solveCollision(final Body b1, final Body b2) {
-        Position x1 = b1.getPos();
-        Position x2 = b2.getPos();
-        Velocity v1 = b1.getVel();
-        Velocity v2 = b2.getVel();
+        Position xB1 = b1.getPos();
+        Position xB2 = b2.getPos();
+        Velocity vB1 = b1.getVel();
+        Velocity vB2 = b2.getVel();
 
-        double x12dx = x1.getX() - x2.getX();
-        double x12dy = x1.getY() - x2.getY();
-        double v12dx = v1.getX() - v2.getX();
-        double v12dy = v1.getY() - v2.getY();
-        double fact12 = (x12dx * v12dx + x12dy * v12dy) / (x12dx * x12dx + x12dy * x12dy);
-        double v1x = v1.getX() - x12dx * fact12;
-        double v1y = v1.getY() - x12dy * fact12;
+        Velocity updateVelB1 = updateVelocity(xB1, xB2, vB1, vB2);
+        Velocity updateVelB2 = updateVelocity(xB2, xB1, vB2, vB1);
 
-        double x21dx = x2.getX() - x1.getX();
-        double x21dy = x2.getY() - x1.getY();
-        double v21dx = v2.getX() - v1.getX();
-        double v21dy = v2.getY() - v1.getY();
-        double fact21 = (x21dx * v21dx + x21dy * v21dy) / (x21dx * x21dx + x21dy * x21dy);
-        double v2x = v2.getX() - x21dx * fact21;
-        double v2y = v2.getY() - x21dy * fact21;
+        b1.changeVel(updateVelB1.x, updateVelB1.y);
+        b2.changeVel(updateVelB2.x, updateVelB2.y);
+    }
 
-        b1.changeVel(v1x, v1y);
-        b2.changeVel(v2x, v2y);
+    private static Velocity updateVelocity(final Position x1, final Position x2, final Velocity v1, final Velocity v2) {
+        double xDx = x1.getX() - x2.getX();
+        double xDy = x1.getY() - x2.getY();
+        double vDx = v1.getX() - v2.getX();
+        double vDy = v1.getY() - v2.getY();
+        double fact = (xDx * vDx + xDy * vDy) / (xDx * xDx + xDy * xDy);
+        double v1x = v1.getX() - xDx * fact;
+        double v1y = v1.getY() - xDy * fact;
+
+        return new Velocity(v1x, v1y);
     }
 }
