@@ -43,9 +43,7 @@ public class SimulationViewer extends JFrame implements Contract.View {
 
     private void display(List<Body> bodies, double vt, long iter){
         try {
-            SwingUtilities.invokeAndWait(() -> {
-                panel.display(bodies, vt, iter);
-            });
+            SwingUtilities.invokeAndWait(() -> panel.display(bodies, vt, iter));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -66,7 +64,6 @@ public class SimulationViewer extends JFrame implements Contract.View {
         private List<Body> bodies = new ArrayList<>();
         private long nIter;
         private double vt;
-        private double energy;
 
         private long dx;
         private long dy;
