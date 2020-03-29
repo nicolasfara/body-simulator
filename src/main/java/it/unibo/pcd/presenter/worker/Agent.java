@@ -8,6 +8,8 @@ public abstract class Agent extends Thread {
     }
 
     public void log(final String message) {
-        System.out.println("[" + name + "] " + message);
+        synchronized (System.out) {
+            System.out.println("[" + name + "] " + message);
+        }
     }
 }
