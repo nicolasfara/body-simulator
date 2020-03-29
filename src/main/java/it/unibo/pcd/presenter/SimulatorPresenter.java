@@ -51,7 +51,9 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
                     }
                 }
             }*/
-            new SimulatorMasterAgent("Master", bodies).start();
+            //int nWorker = Runtime.getRuntime().availableProcessors();
+            int nWorker = 2;
+            new SimulatorMasterAgent("Master", bodies, nWorker).start();
 
             /* check boundaries */
             for (final Body b : bodies) {

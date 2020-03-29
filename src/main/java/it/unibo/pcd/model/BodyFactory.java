@@ -1,5 +1,6 @@
 package it.unibo.pcd.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -15,9 +16,14 @@ public final class BodyFactory {
     }
 
     public static List<Body> getBodiesAtRandomPosition(final Boundary bounds, final int number) {
-        return Stream.generate(() -> new Body(getRandomPosition(bounds), getRandomVelocity(), 0.01))
+        /*return Stream.generate(() -> new Body(getRandomPosition(bounds), getRandomVelocity(), 0.01))
                 .limit(number)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
+        List<Body> list = new ArrayList<>();
+        for (int i = 0; i < number; i++) {
+            list.add(new Body(getRandomPosition(bounds), getRandomVelocity(), 0.01));
+        }
+        return list;
     }
 
     private static Position getRandomPosition(final Boundary bounds) {
