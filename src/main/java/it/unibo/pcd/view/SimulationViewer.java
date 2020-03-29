@@ -1,6 +1,6 @@
 package it.unibo.pcd.view;
 
-import it.unibo.pcd.contract.Contract;
+import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.Body;
 import it.unibo.pcd.model.Position;
 
@@ -13,35 +13,38 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
-public class SimulationViewer extends JFrame implements Contract.View {
+public class SimulationViewer extends JFrame implements SimulatorContract.View {
     // Contract Presenter
-    private Contract.Presenter mPresenter;
+    private SimulatorContract.Presenter mPresenter;
 
-    private VisualiserPanel panel;
+    private final VisualiserPanel panel;
 
     /**
      * Creates a view of the specified size (in pixels)
      * @param w
      * @param h
      */
-    public SimulationViewer(int w, int h){
+    public SimulationViewer(final int w, final int h){
+        super();
         setTitle("Bodies Simulation");
         setSize(w,h);
         setResizable(false);
         panel = new VisualiserPanel(w,h);
         getContentPane().add(panel);
         addWindowListener(new WindowAdapter(){
-            public void windowClosing(WindowEvent ev){
+            @Override
+            public void windowClosing(final WindowEvent ev){
                 System.exit(-1);
             }
-            public void windowClosed(WindowEvent ev){
+            @Override
+            public void windowClosed(final WindowEvent ev){
                 System.exit(-1);
             }
         });
         setVisible(true);
     }
 
-    private void display(List<Body> bodies, double vt, long iter){
+    private void display(final List<Body> bodies, final double vt, final long iter){
         try {
             SwingUtilities.invokeAndWait(() -> panel.display(bodies, vt, iter));
         } catch (Exception ex) {
@@ -55,7 +58,7 @@ public class SimulationViewer extends JFrame implements Contract.View {
     }
 
     @Override
-    public void setPresenter(Contract.Presenter presenter) {
+    public void setPresenter(final SimulatorContract.Presenter presenter) {
         mPresenter = presenter;
     }
 
@@ -65,18 +68,19 @@ public class SimulationViewer extends JFrame implements Contract.View {
         private long nIter;
         private double vt;
 
-        private long dx;
-        private long dy;
+        private final long dx;
+        private final long dy;
 
-        public VisualiserPanel(int w, int h){
+        public VisualiserPanel(final int w, final int h){
+            super();
             setSize(w,h);
             dx = w/2 - 20;
             dy = h/2 - 20;
         }
 
         @Override
-        public void paint(Graphics g){
-            Graphics2D g2 = (Graphics2D) g;
+        public void paint(final Graphics g){
+            final Graphics2D g2 = (Graphics2D) g;
 
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
@@ -84,18 +88,18 @@ public class SimulationViewer extends JFrame implements Contract.View {
                     RenderingHints.VALUE_RENDER_QUALITY);
             g2.clearRect(0,0,this.getWidth(),this.getHeight());
 
-            bodies.forEach( b -> {
-                Position p = b.getPos();
-                double rad = b.getRadius();
-                int x0 = (int)(dx + p.getX()*dx);
-                int y0 = (int)(dy - p.getY()*dy);
+            bodies.forEach(b -> {
+                final Position p = b.getPos();
+                final double rad = b.getRadius();
+                final int x0 = (int)(dx + p.getX()*dx);
+                final int y0 = (int)(dy - p.getY()*dy);
                 g2.drawOval(x0,y0, (int)(rad*dx*2), (int)(rad*dy*2));
             });
-            String time = String.format("%.2f", vt);
+            final String time = String.format("%.2f", vt);
             g2.drawString("Bodies: " + bodies.size() + " - vt: " + time + " - nIter: " + nIter, 2, 20);
         }
 
-        public void display(List<Body> bodies, double vt, long iter){
+        public void display(final List<Body> bodies, final double vt, final long iter){
             this.bodies = bodies;
             this.vt = vt;
             this.nIter = iter;

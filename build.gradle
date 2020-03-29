@@ -1,6 +1,7 @@
 plugins {
     id 'application'
     id 'java'
+    id 'pmd'
 }
 
 group 'it.unibo.pcd'
@@ -20,3 +21,12 @@ dependencies {
 application {
     mainClassName = 'it.unibo.pcd.BodySimulatorMain'
 }
+
+pmd {
+    consoleOutput = true
+    toolVersion = "6.21.0"
+    rulePriority = 5
+    ruleSetFiles = files("config/pmd.xml")
+    //ruleSets = ["category/java/errorprone.xml", "category/java/bestpractices.xml"]
+}
+

@@ -1,17 +1,17 @@
 package it.unibo.pcd.presenter;
 
-import it.unibo.pcd.contract.Contract;
+import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimulatorPresenter implements Contract.Presenter {
-    private Contract.View mView = null;
+public class SimulatorPresenter implements SimulatorContract.Presenter {
+    private transient SimulatorContract.View mView;
 
-    private List<Body> bodies;
+    private transient List<Body> bodies;
     /* boundary of the field */
-    private Boundary bounds;
+    private transient Boundary bounds;
 
     public SimulatorPresenter(final int bodiesCount) {
         bounds = new Boundary(-1.0,-1.0,1.0,1.0);
@@ -20,7 +20,7 @@ public class SimulatorPresenter implements Contract.Presenter {
         bodies.addAll(BodyFactory.getBodiesAtRandomPosition(bounds, bodiesCount));
     }
 
-    public SimulatorPresenter(final Contract.View mView, final int bodiesCount) {
+    public SimulatorPresenter(final SimulatorContract.View mView, final int bodiesCount) {
         this(bodiesCount);
         this.mView = mView;
     }
@@ -31,7 +31,7 @@ public class SimulatorPresenter implements Contract.Presenter {
         /* init virtual time */
 
         double vt = 0;
-        double dt = 0.1;
+        final double dt = 0.1;
 
         long iter = 0;
 
@@ -41,25 +41,23 @@ public class SimulatorPresenter implements Contract.Presenter {
 
             /* compute bodies new pos */
 
-            for (Body b : bodies) {
+            for (final Body b : bodies) {
                 b.updatePos(dt);
             }
 
             /* check collisions */
 
             for (int i = 0; i < bodies.size() - 1; i++) {
-                Body b1 = bodies.get(i);
                 for (int j = i + 1; j < bodies.size(); j++) {
-                    Body b2 = bodies.get(j);
-                    if (b1.collideWith(b2)) {
-                        Body.solveCollision(b1, b2);
+                    if (bodies.get(i).collideWith(bodies.get(j))) {
+                        Body.solveCollision(bodies.get(i), bodies.get(j));
                     }
                 }
             }
 
             /* check boundaries */
 
-            for (Body b : bodies) {
+            for (final Body b : bodies) {
                 b.checkAndSolveBoundaryCollision(bounds);
             }
 

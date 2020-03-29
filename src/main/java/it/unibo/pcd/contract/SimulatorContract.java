@@ -6,7 +6,7 @@ import it.unibo.pcd.view.BaseView;
 
 import java.util.List;
 
-public interface Contract {
+public interface SimulatorContract {
 
     interface View extends BaseView<Presenter> {
         void updateView(final List<Body> bodies, final double vt, final long iter);

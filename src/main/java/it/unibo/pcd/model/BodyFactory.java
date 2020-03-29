@@ -5,10 +5,12 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class BodyFactory {
-    private static final Random random = new Random(System.currentTimeMillis());
+public final class BodyFactory {
+    private static final Random RANDOM = new Random(System.currentTimeMillis());
 
-    public static Body getNewSingleBody(Position pos, Velocity velocity) {
+    private BodyFactory() { }
+
+    public static Body getNewSingleBody(final Position pos, final Velocity velocity) {
         return new Body(pos, velocity, 0.01);
     }
 
@@ -19,14 +21,14 @@ public class BodyFactory {
     }
 
     private static Position getRandomPosition(final Boundary bounds) {
-        double x = bounds.getX0() + random.nextDouble()*(bounds.getX1() - bounds.getX0());
-        double y = bounds.getX0() + random.nextDouble()*(bounds.getX1() - bounds.getX0());
+        final double x = bounds.getX0() + RANDOM.nextDouble()*(bounds.getX1() - bounds.getX0());
+        final double y = bounds.getX0() + RANDOM.nextDouble()*(bounds.getX1() - bounds.getX0());
         return new Position(x, y);
     }
 
     private static Velocity getRandomVelocity() {
-        double dx = -1 + random.nextDouble()*2;
-        double speed = random.nextDouble()*0.05;
+        final double dx = -1 + RANDOM.nextDouble()*2;
+        final double speed = RANDOM.nextDouble()*0.05;
         return new Velocity(dx*speed,Math.sqrt(1 - dx*dx)*speed);
     }
 }

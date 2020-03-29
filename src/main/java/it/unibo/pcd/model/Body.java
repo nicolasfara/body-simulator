@@ -1,12 +1,11 @@
 package it.unibo.pcd.model;
 
-
 public class Body {
-    private Position pos;
-    private Velocity vel;
-    private double radius;
+    private final Position pos;
+    private final Velocity vel;
+    private final double radius;
 
-    public Body(Position pos, Velocity vel, double radius){
+    public Body(final Position pos, final Velocity vel, final double radius){
         this.pos = pos;
         this.vel = vel;
         this.radius = radius;
@@ -29,9 +28,9 @@ public class Body {
      *
      * @param dt time elapsed
      */
-    public void updatePos(double dt) {
-        double newPosX = pos.getX() + vel.getX()*dt;
-        double newPosY = pos.getY() + vel.getY()*dt;
+    public void updatePos(final double dt) {
+        final double newPosX = pos.getX() + vel.getX()*dt;
+        final double newPosY = pos.getY() + vel.getY()*dt;
         pos.change(newPosX, newPosY);
     }
 
@@ -41,7 +40,7 @@ public class Body {
      * @param vx
      * @param vy
      */
-    public void changeVel(double vx, double vy) {
+    public void changeVel(final double vx, final double vy) {
         vel.change(vx, vy);
     }
 
@@ -51,9 +50,9 @@ public class Body {
      * @param b
      * @return
      */
-    public double getDistance(Body b) {
-        double dx = pos.getX() - b.getPos().getX();
-        double dy = pos.getY() - b.getPos().getY();
+    public double getDistance(final Body b) {
+        final double dx = pos.getX() - b.getPos().getX();
+        final double dy = pos.getY() - b.getPos().getY();
         return Math.sqrt(dx*dx + dy*dy);
     }
 
@@ -62,8 +61,8 @@ public class Body {
      * @param b
      * @return
      */
-    public boolean collideWith(Body b) {
-        double distance = getDistance(b);
+    public boolean collideWith(final Body b) {
+        final double distance = getDistance(b);
         return distance < radius + b.getRadius();
     }
 
@@ -73,45 +72,43 @@ public class Body {
      *
      * @param bounds
      */
-    public void checkAndSolveBoundaryCollision(Boundary bounds) {
-        double x = pos.getX();
-        double y = pos.getY();
-        if (x > bounds.getX1()){
+    public void checkAndSolveBoundaryCollision(final Boundary bounds) {
+        if (pos.getX() > bounds.getX1()){
             pos.change(bounds.getX1(), pos.getY());
             vel.change(-vel.getX(), vel.getY());
-        } else if (x < bounds.getX0()){
+        } else if (pos.getX() < bounds.getX0()){
             pos.change(bounds.getX0(), pos.getY());
             vel.change(-vel.getX(), vel.getY());
-        } else if (y > bounds.getY1()){
+        } else if (pos.getY() > bounds.getY1()){
             pos.change(pos.getX(), bounds.getY1());
             vel.change(vel.getX(), -vel.getY());
-        } else if (y < bounds.getY0()){
+        } else if (pos.getY() < bounds.getY0()){
             pos.change(pos.getX(), bounds.getY0());
             vel.change(vel.getX(), -vel.getY());
         }
     }
 
     public static void solveCollision(final Body b1, final Body b2) {
-        Position xB1 = b1.getPos();
-        Position xB2 = b2.getPos();
-        Velocity vB1 = b1.getVel();
-        Velocity vB2 = b2.getVel();
+        final Position xB1 = b1.getPos();
+        final Position xB2 = b2.getPos();
+        final Velocity vB1 = b1.getVel();
+        final Velocity vB2 = b2.getVel();
 
-        Velocity updateVelB1 = updateVelocity(xB1, xB2, vB1, vB2);
-        Velocity updateVelB2 = updateVelocity(xB2, xB1, vB2, vB1);
+        final Velocity updateVelB1 = updateVelocity(xB1, xB2, vB1, vB2);
+        final Velocity updateVelB2 = updateVelocity(xB2, xB1, vB2, vB1);
 
         b1.changeVel(updateVelB1.x, updateVelB1.y);
         b2.changeVel(updateVelB2.x, updateVelB2.y);
     }
 
     private static Velocity updateVelocity(final Position x1, final Position x2, final Velocity v1, final Velocity v2) {
-        double xDx = x1.getX() - x2.getX();
-        double xDy = x1.getY() - x2.getY();
-        double vDx = v1.getX() - v2.getX();
-        double vDy = v1.getY() - v2.getY();
-        double fact = (xDx * vDx + xDy * vDy) / (xDx * xDx + xDy * xDy);
-        double v1x = v1.getX() - xDx * fact;
-        double v1y = v1.getY() - xDy * fact;
+        final double xDx = x1.getX() - x2.getX();
+        final double xDy = x1.getY() - x2.getY();
+        final double vDx = v1.getX() - v2.getX();
+        final double vDy = v1.getY() - v2.getY();
+        final double fact = (xDx * vDx + xDy * vDy) / (xDx * xDx + xDy * xDy);
+        final double v1x = v1.getX() - xDx * fact;
+        final double v1y = v1.getY() - xDy * fact;
 
         return new Velocity(v1x, v1y);
     }
