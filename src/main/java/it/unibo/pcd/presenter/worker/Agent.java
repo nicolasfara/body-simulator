@@ -1,15 +1,14 @@
 package it.unibo.pcd.presenter.worker;
 
 public abstract class Agent extends Thread {
-    private final String name;
 
     public Agent(String name) {
-        this.name = name;
+        super(name);
     }
 
     public void log(final String message) {
         synchronized (System.out) {
-            System.out.println("[" + name + "] " + message);
+            System.out.println("[" + getName() + "] " + message);
         }
     }
 }
