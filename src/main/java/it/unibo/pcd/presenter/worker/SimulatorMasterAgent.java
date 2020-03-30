@@ -18,8 +18,8 @@ public class SimulatorMasterAgent extends Agent {
     public void run() {
         super.run();
         for (int i = 0; i < nWorker; i++) {
-            int start = bodies.size() * i / nWorker;
-            int end = bodies.size() * (i+1) / nWorker;
+            int start = (bodies.size() - 1) * i / nWorker;
+            int end = (bodies.size() - 1) * (i+1) / nWorker;
             new SimulatorWorkerAgent("Worker" + i, start, end, bodies).start();
         }
     }
