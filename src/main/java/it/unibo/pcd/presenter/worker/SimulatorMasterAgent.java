@@ -1,6 +1,5 @@
 package it.unibo.pcd.presenter.worker;
 
-import gov.nasa.jpf.vm.Verify;
 import it.unibo.pcd.model.Body;
 
 import java.util.List;
@@ -18,12 +17,10 @@ public class SimulatorMasterAgent extends Agent {
     @Override
     public void run() {
         super.run();
-        Verify.beginAtomic();
         for (int i = 0; i < nWorker; i++) {
             int start = bodies.size() * i / nWorker;
             int end = bodies.size() * (i+1) / nWorker;
             new SimulatorWorkerAgent("Worker" + i, start, end, bodies).start();
         }
-        Verify.endAtomic();
     }
 }
