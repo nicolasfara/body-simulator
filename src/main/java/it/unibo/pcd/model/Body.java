@@ -26,7 +26,7 @@ public class Body {
     /**
      * Update the position, according to current velocity
      *
-     * @param dt time elapsed
+     * @param dt time elapsed.
      */
     public void updatePos(final double dt) {
         final double newPosX = pos.getX() + vel.getX()*dt;
@@ -35,10 +35,10 @@ public class Body {
     }
 
     /**
-     * Change the velocity
+     * Change the velocity.
      *
-     * @param vx
-     * @param vy
+     * @param vx Velocity on x coordinate.
+     * @param vy Velocity on y coordinate.
      */
     public void changeVel(final double vx, final double vy) {
         vel.change(vx, vy);
@@ -47,8 +47,8 @@ public class Body {
     /**
      * Computes the distance from the specified body
      *
-     * @param b
-     * @return
+     * @param b The body for calculate the distance to.
+     * @return The distance from the argument body.
      */
     public double getDistance(final Body b) {
         final double dx = pos.getX() - b.getPos().getX();
@@ -58,8 +58,8 @@ public class Body {
 
     /**
      * Check if there is collision with the specified body
-     * @param b
-     * @return
+     * @param b The body to check if collide with the current body.
+     * @return true if the current body collide with the argument body.
      */
     public boolean collideWith(final Body b) {
         final double distance = getDistance(b);
@@ -67,10 +67,10 @@ public class Body {
     }
 
     /**
-     * Check if there collisions with the boundaty and update the
-     * position and velocity accordingly
+     * Check if there collisions with the boundary and update the
+     * position and velocity accordingly.
      *
-     * @param bounds
+     * @param bounds Bounds of the world.
      */
     public void checkAndSolveBoundaryCollision(final Boundary bounds) {
         if (pos.getX() > bounds.getX1()){
