@@ -1,41 +1,90 @@
 package it.unibo.pcd.presenter.worker;
 
+import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.Body;
+import it.unibo.pcd.model.Boundary;
+import it.unibo.pcd.model.World;
+import it.unibo.pcd.presenter.worker.util.ResettableCountDownLatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
 
 public class SimulatorMasterAgent extends Agent {
     private List<Body> bodies;
     private final int nWorker;
-    private final List<SimulatorWorkerAgent> workersPools;
 
-    public SimulatorMasterAgent(final String name, final List<Body> bodies, final int nWorker) {
-        super(name);
+    private final List<Semaphore> nextStep;
+    private final List<SimulatorWorkerAgent> workersPools;
+    private final ResettableCountDownLatch stepDone;
+    private final CyclicBarrier barrier;
+    private transient SimulatorContract.View mView;
+
+    public SimulatorMasterAgent(final List<Body> bodies, final int nWorker) {
+        super("Master");
         this.bodies = bodies;
         this.nWorker = nWorker;
+
         workersPools = new ArrayList<>(nWorker);
+        nextStep = new ArrayList<>(nWorker);
+        stepDone = new ResettableCountDownLatch(nWorker);
+        barrier = new CyclicBarrier(nWorker);
     }
 
     @Override
     public void run() {
         super.run();
-
         initWorkers();
+        doSimulation();
+    }
+
+    public void setView(final SimulatorContract.View mView) {
+        this.mView = mView;
     }
 
     private void initWorkers() {
+        final int chunkSize = (bodies.size() + nWorker - 1) / nWorker;
         for (int i = 0; i < nWorker; i++) {
-            int start = (bodies.size() - 1) * i / nWorker;
-            int end = (bodies.size() - 1) * (i+1) / nWorker;
-            workersPools.add(new SimulatorWorkerAgent("Worker" + i, start, end, bodies));
+            nextStep.add(new Semaphore(0));
+            int start = i * chunkSize;
+            int end = Math.min(start + chunkSize, bodies.size());
+            workersPools.add(new SimulatorWorkerAgent(nextStep.get(i), stepDone, barrier, start, end, bodies));
         }
     }
 
     private void doSimulation() {
-        /*
-        * while (iter < nIter)
-        *   latch.countDown()
-        *   latch.reset*/
+        long iter = 0;
+        World world = World.getInstance();
+
+        workersPools.forEach(SimulatorWorkerAgent::start); //Start all worker threads
+
+        while (iter < world.getIterationsNumber()) {
+            stepDone.reset(); // Reset latch count for next step
+            log("Latch reset");
+
+            nextStep.forEach(Semaphore::release); // Unlock all waiting worker threads
+            log("Workers spawned");
+
+            // Waiting all threads are finished
+            try {
+                stepDone.await();
+
+                /* update virtual time */
+                world.setVirtualTime(world.getVirtualTime() + world.getDt());
+                iter++;
+
+                if (mView != null) {
+                    mView.updateView(bodies, world.getVirtualTime(), iter);
+                    log("Update View");
+                } else {
+                    System.out.println("Iteration number: " + iter);
+                }
+            } catch (InterruptedException ex) {
+                log("Failing to await stepDone");
+            }
+        }
+
+        workersPools.forEach(SimulatorWorkerAgent::interrupt); //Terminate all worker threads
     }
 }
