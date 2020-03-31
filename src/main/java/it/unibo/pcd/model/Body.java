@@ -11,15 +11,15 @@ public class Body {
         this.radius = radius;
     }
 
-    public double getRadius() {
+    public synchronized double getRadius() {
         return radius;
     }
 
-    public Position getPos(){
+    public synchronized Position getPos(){
         return pos;
     }
 
-    public Velocity getVel(){
+    public synchronized Velocity getVel(){
         return vel;
     }
 
@@ -28,7 +28,7 @@ public class Body {
      *
      * @param dt time elapsed.
      */
-    public void updatePos(final double dt) {
+    public synchronized void updatePos(final double dt) {
         final double newPosX = pos.getX() + vel.getX()*dt;
         final double newPosY = pos.getY() + vel.getY()*dt;
         pos.change(newPosX, newPosY);
@@ -40,7 +40,7 @@ public class Body {
      * @param vx Velocity on x coordinate.
      * @param vy Velocity on y coordinate.
      */
-    public void changeVel(final double vx, final double vy) {
+    public synchronized void changeVel(final double vx, final double vy) {
         vel.change(vx, vy);
     }
 
@@ -50,7 +50,7 @@ public class Body {
      * @param b The body for calculate the distance to.
      * @return The distance from the argument body.
      */
-    public double getDistance(final Body b) {
+    public synchronized double getDistance(final Body b) {
         final double dx = pos.getX() - b.getPos().getX();
         final double dy = pos.getY() - b.getPos().getY();
         return Math.sqrt(dx*dx + dy*dy);
@@ -61,7 +61,7 @@ public class Body {
      * @param b The body to check if collide with the current body.
      * @return true if the current body collide with the argument body.
      */
-    public boolean collideWith(final Body b) {
+    public synchronized boolean collideWith(final Body b) {
         final double distance = getDistance(b);
         return distance < radius + b.getRadius();
     }
@@ -72,7 +72,7 @@ public class Body {
      *
      * @param bounds Bounds of the world.
      */
-    public void checkAndSolveBoundaryCollision(final Boundary bounds) {
+    public synchronized void checkAndSolveBoundaryCollision(final Boundary bounds) {
         if (pos.getX() > bounds.getX1()){
             pos.change(bounds.getX1(), pos.getY());
             vel.change(-vel.getX(), vel.getY());
