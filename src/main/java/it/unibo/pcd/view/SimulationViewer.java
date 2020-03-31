@@ -46,7 +46,8 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
 
     private void display(final List<Body> bodies, final double vt, final long iter){
         try {
-            SwingUtilities.invokeAndWait(() -> panel.display(bodies, vt, iter));
+            //SwingUtilities.invokeAndWait(() -> panel.display(bodies, vt, iter));
+            SwingUtilities.invokeLater(() -> panel.display(bodies, vt, iter));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -62,16 +63,16 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
         mPresenter = presenter;
     }
 
-    public static class VisualiserPanel extends JPanel {
+    private static class VisualiserPanel extends JPanel {
 
-        private List<Body> bodies = new ArrayList<>();
+        private List<Body> bodies;
         private long nIter;
         private double vt;
 
         private final long dx;
         private final long dy;
 
-        public VisualiserPanel(final int w, final int h){
+        VisualiserPanel(final int w, final int h){
             super();
             setSize(w,h);
             dx = w/2 - 20;
@@ -93,13 +94,13 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
                 final double rad = b.getRadius();
                 final int x0 = (int)(dx + p.getX()*dx);
                 final int y0 = (int)(dy - p.getY()*dy);
-                g2.drawOval(x0,y0, (int)(rad*dx*2), (int)(rad*dy*2));
+                g2.drawOval(x0, y0, (int)(rad*dx*2), (int)(rad*dy*2));
             });
             final String time = String.format("%.2f", vt);
             g2.drawString("Bodies: " + bodies.size() + " - vt: " + time + " - nIter: " + nIter, 2, 20);
         }
 
-        public void display(final List<Body> bodies, final double vt, final long iter){
+         void display(final List<Body> bodies, final double vt, final long iter){
             this.bodies = bodies;
             this.vt = vt;
             this.nIter = iter;
