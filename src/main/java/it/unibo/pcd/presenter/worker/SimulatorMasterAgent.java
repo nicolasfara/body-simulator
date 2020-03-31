@@ -6,13 +6,14 @@ import it.unibo.pcd.model.Boundary;
 import it.unibo.pcd.model.World;
 import it.unibo.pcd.presenter.worker.util.ResettableCountDownLatch;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 
 public class SimulatorMasterAgent extends Agent {
-    private List<Body> bodies;
+    private final List<Body> bodies;
     private final int nWorker;
 
     private final List<Semaphore> nextStep;
@@ -56,10 +57,14 @@ public class SimulatorMasterAgent extends Agent {
     private void doSimulation() {
         long iter = 0;
         World world = World.getInstance();
+        final long realDt = 20;
+        long tStart;
+        long tEnd;
 
         workersPools.forEach(SimulatorWorkerAgent::start); //Start all worker threads
 
         while (iter < world.getIterationsNumber()) {
+            tStart = System.currentTimeMillis();
             stepDone.reset(); // Reset latch count for next step
             log("Latch reset");
 
@@ -79,6 +84,13 @@ public class SimulatorMasterAgent extends Agent {
                     log("Update View");
                 } else {
                     System.out.println("Iteration number: " + iter);
+                }
+                tEnd = System.currentTimeMillis();
+                log("Elapsed: " + (tEnd-tStart));
+                if ((tEnd-tStart) < realDt) {
+                    Thread.sleep(realDt - (tEnd - tStart));
+                } else {
+                    log("Overrun");
                 }
             } catch (InterruptedException ex) {
                 log("Failing to await stepDone");
