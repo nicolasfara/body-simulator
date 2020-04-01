@@ -2,11 +2,9 @@ package it.unibo.pcd.presenter.worker;
 
 import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.Body;
-import it.unibo.pcd.model.Boundary;
 import it.unibo.pcd.model.World;
 import it.unibo.pcd.presenter.worker.util.ResettableCountDownLatch;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
@@ -71,7 +69,7 @@ public class SimulatorMasterAgent extends Agent {
             nextStep.forEach(Semaphore::release); // Unlock all waiting worker threads
             log("Workers spawned");
 
-            // Waiting all threads are finished
+            // Waiting all threads
             try {
                 stepDone.await();
 
