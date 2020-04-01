@@ -1,9 +1,20 @@
 package it.unibo.pcd.model;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 public class Body {
     private final Position pos;
     private final Velocity vel;
     private final double radius;
+    private final ReadWriteLock positionReadWriteLock = new ReentrantReadWriteLock();
+    private final Lock positionReadLock = positionReadWriteLock.readLock();
+    private final Lock positionWriteLock = positionReadWriteLock.writeLock();
+    private final ReadWriteLock velocityReadWriteLock = new ReentrantReadWriteLock();
+    private final Lock velocityReadLock = velocityReadWriteLock.readLock();
+    private final Lock velocityWriteLock = velocityReadWriteLock.writeLock();
+
 
     public Body(final Position pos, final Velocity vel, final double radius){
         this.pos = pos;
@@ -11,16 +22,26 @@ public class Body {
         this.radius = radius;
     }
 
-    public synchronized double getRadius() {
+    public double getRadius() {
         return radius;
     }
 
-    public synchronized Position getPos(){
-        return pos;
+    public Position getPos() {
+        positionReadLock.lock();
+        try {
+            return pos;
+        } finally {
+            positionReadLock.unlock();
+        }
     }
 
-    public synchronized Velocity getVel(){
-        return vel;
+    public Velocity getVel(){
+        velocityReadLock.lock();
+        try {
+            return vel;
+        } finally {
+            velocityReadLock.unlock();
+        }
     }
 
     /**
@@ -28,10 +49,15 @@ public class Body {
      *
      * @param dt time elapsed.
      */
-    public synchronized void updatePos(final double dt) {
-        final double newPosX = pos.getX() + vel.getX()*dt;
-        final double newPosY = pos.getY() + vel.getY()*dt;
-        pos.change(newPosX, newPosY);
+    public void updatePos(final double dt) {
+        positionWriteLock.lock();
+        try {
+            final double newPosX = pos.getX() + vel.getX()*dt;
+            final double newPosY = pos.getY() + vel.getY()*dt;
+            pos.change(newPosX, newPosY);
+        } finally {
+            positionWriteLock.unlock();
+        }
     }
 
     /**
@@ -41,7 +67,13 @@ public class Body {
      * @param vy Velocity on y coordinate.
      */
     public synchronized void changeVel(final double vx, final double vy) {
-        vel.change(vx, vy);
+        velocityWriteLock.lock();
+        try {
+            vel.change(vx, vy);
+        } finally {
+            velocityWriteLock.unlock();
+        }
+
     }
 
     /**
@@ -72,7 +104,7 @@ public class Body {
      *
      * @param bounds Bounds of the world.
      */
-    public synchronized void checkAndSolveBoundaryCollision(final Boundary bounds) {
+    public void checkAndSolveBoundaryCollision(final Boundary bounds) {
         if (pos.getX() > bounds.getX1()){
             pos.change(bounds.getX1(), pos.getY());
             vel.change(-vel.getX(), vel.getY());
