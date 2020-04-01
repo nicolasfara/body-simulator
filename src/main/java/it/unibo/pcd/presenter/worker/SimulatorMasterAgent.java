@@ -97,6 +97,7 @@ public class SimulatorMasterAgent extends Agent {
             }
         }
 
-        workersPools.forEach(SimulatorWorkerAgent::interrupt); //Terminate all worker threads
+        workersPools.forEach(SimulatorWorkerAgent::stopWorker); //Terminate all worker threads
+        nextStep.forEach(Semaphore::release); // This prevent deadlock (thanks JPF :))
     }
 }

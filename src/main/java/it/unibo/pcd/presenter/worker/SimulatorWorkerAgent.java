@@ -10,7 +10,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 
 public class SimulatorWorkerAgent extends Agent {
-
+    private boolean isRunning = true;
     private final int start;
     private final int end;
     private final List<Body> bodies;
@@ -36,10 +36,11 @@ public class SimulatorWorkerAgent extends Agent {
 
         World world = World.getInstance();
 
-        while (true) {
+        while (isRunning) {
             try {
                 /* Waiting master to compute next step */
                 nextStep.acquire();
+                if (!isRunning) break; // If the las iteration is occurred, exit from while (prevent deadlock on semaphore)
 
                 /* compute bodies new pos */
                 for (int i = start; i < end; i++) {
@@ -72,6 +73,9 @@ public class SimulatorWorkerAgent extends Agent {
                 log("Barrier broken\n" + ex);
             }
         }
+    }
 
+    public void stopWorker() {
+        isRunning = false;
     }
 }
