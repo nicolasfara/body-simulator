@@ -89,7 +89,7 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
                     RenderingHints.VALUE_RENDER_QUALITY);
             g2.clearRect(0,0,this.getWidth(),this.getHeight());
 
-            bodies.forEach(b -> {
+            bodies.parallelStream().forEach(b -> {
                 final Position p = b.getPos();
                 final double rad = b.getRadius();
                 final int x0 = (int)(dx + p.getX()*dx);
