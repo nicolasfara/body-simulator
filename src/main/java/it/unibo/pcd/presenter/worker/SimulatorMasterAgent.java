@@ -35,6 +35,7 @@ public class SimulatorMasterAgent extends Agent {
         super.log("Init workers...");
         initWorkers();
         super.log("Starting simulation...");
+
         if (mView != null) {
             doSimulationWithGUI();
         } else {
@@ -44,7 +45,8 @@ public class SimulatorMasterAgent extends Agent {
     }
 
     private void initWorkers() {
-        this.nWorker = Runtime.getRuntime().availableProcessors() + 1;
+
+        this.nWorker = Runtime.getRuntime().availableProcessors() ;
         stepDone = new ResettableLatch(nWorker);
         for (int i = 0; i < nWorker; i++) {
             int start = (bodies.size() - 1) * i / nWorker;
@@ -61,7 +63,7 @@ public class SimulatorMasterAgent extends Agent {
         long nIterations = 0;
         Chrono chrono = new Chrono();
         chrono.start();
-        log("Started.");
+        super.log("Started.");
 
         /* simulation loop */
         while (nIterations < iter && !stopFlag.isSet()) {
@@ -85,8 +87,8 @@ public class SimulatorMasterAgent extends Agent {
             chrono.stop();
             long dt2 = chrono.getTime();
             double timePerStep = ((double) dt2) / iter;
-            log("Done " + iter + " iter with " + bodies.size() + " bodies using " + nWorker + " workers in: " + dt2 + "ms");
-            log("- " + timePerStep + " ms per step");
+            //super.log("Done " + iter + " iter with " + bodies.size() + " bodies using " + nWorker + " workers in: " + dt2 + "ms");
+            //super.log("- " + timePerStep + " ms per step");
             System.exit(0);
         }
     }

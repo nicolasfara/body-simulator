@@ -40,7 +40,6 @@ public class SimulatorWorkerAgent extends Agent {
                 }
                 stepDone.down();
 
-            log("completed.");
         }
     }
 }

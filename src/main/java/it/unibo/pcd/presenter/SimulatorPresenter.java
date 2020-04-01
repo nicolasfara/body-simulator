@@ -22,6 +22,7 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
         bounds = new Boundary(-1.0,-1.0,1.0,1.0);
         bodies = new ArrayList<>();
         this.nIter = iter;
+        this.mView = null;
         bodies.addAll(BodyFactory.getBodiesAtRandomPosition(bounds, bodiesCount));
     }
 
