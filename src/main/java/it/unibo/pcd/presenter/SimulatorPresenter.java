@@ -14,61 +14,27 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
     /* boundary of the field */
     private transient Boundary bounds;
 
-    public SimulatorPresenter(final int bodiesCount) {
+    /* Flag start/stop master worker */
+    public Flag stopFlag;
+    private int nIter;
+
+    public SimulatorPresenter(final int bodiesCount, final int iter) {
         bounds = new Boundary(-1.0,-1.0,1.0,1.0);
         bodies = new ArrayList<>();
-
+        this.nIter = iter;
         bodies.addAll(BodyFactory.getBodiesAtRandomPosition(bounds, bodiesCount));
     }
 
-    public SimulatorPresenter(final SimulatorContract.View mView, final int bodiesCount) {
-        this(bodiesCount);
+    public SimulatorPresenter(final SimulatorContract.View mView, final int bodiesCount, final int iter) {
+        this(bodiesCount,iter);
         this.mView = mView;
     }
 
-    @Override
-    public void execute(final long nIterations) {
-
-        /* init virtual time */
-        double vt = 0;
-        final double dt = 0.1;
-
-        long iter = 0;
-
-        /* simulation loop */
-        while (iter < nIterations) {
-
-            /* compute bodies new pos */
-            for (final Body b : bodies) {
-                b.updatePos(dt);
-            }
-
-            /* check collisions */
-            /*for (int i = 0; i < bodies.size() - 1; i++) {
-                for (int j = i + 1; j < bodies.size(); j++) {
-                    if (bodies.get(i).collideWith(bodies.get(j))) {
-                        Body.solveCollision(bodies.get(i), bodies.get(j));
-                    }
-                }
-            }*/
-            //int nWorker = Runtime.getRuntime().availableProcessors();
-            int nWorker = 2;
-            new SimulatorMasterAgent("Master", bodies, nWorker).start();
-
-            /* check boundaries */
-            for (final Body b : bodies) {
-                b.checkAndSolveBoundaryCollision(bounds);
-            }
-
-            /* update virtual time */
-            vt = vt + dt;
-            iter++;
-
-            if (mView != null) {
-                mView.updateView(bodies, vt, iter);
-            } else {
-                System.out.println("Iteration number: " + iter);
-            }
-        }
+    public void started(){
+        this.stopFlag = new Flag();
+        new SimulatorMasterAgent("Master",bodies,stopFlag,nIter,mView,bounds).start();
+    }
+    public void stopped(){
+        this.stopFlag.set();
     }
 }
