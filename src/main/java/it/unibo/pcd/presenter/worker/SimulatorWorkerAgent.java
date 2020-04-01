@@ -18,7 +18,7 @@ public class SimulatorWorkerAgent extends Agent {
     private final ResettableCountDownLatch stepDone;
     private final CyclicBarrier barrier;
 
-    public SimulatorWorkerAgent(Semaphore nextStep, ResettableCountDownLatch stepDone, CyclicBarrier barrier,
+    public SimulatorWorkerAgent(final Semaphore nextStep, final ResettableCountDownLatch stepDone, final CyclicBarrier barrier,
                                 final int start, final int end, final List<Body> bodies) {
         super("Worker");
         this.start = start;

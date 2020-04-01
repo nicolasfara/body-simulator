@@ -1,10 +1,10 @@
 package it.unibo.pcd.model;
 
-public class World {
-    private double virtualTime = 0;
+public final class World {
+    private double virtualTime;
     private long iterationsNumber = -1;
     private Boundary bounds;
-    private final double dt = 0.1;
+    private final static double DT = 0.1;
     private static volatile World instance;
 
     private World() { }
@@ -13,14 +13,11 @@ public class World {
      * Return the instance of the world. (optimized code)
      * @return the world instance.
      */
-    public static World getInstance() {
+    public synchronized static World getInstance() {
         if (instance == null) {
-            synchronized (World.class) {
-                if (instance == null) {
-                    instance = new World();
-                }
-            }
+            instance = new World();
         }
+
         return instance;
     }
 
@@ -45,7 +42,7 @@ public class World {
     }
 
     public synchronized double getDt() {
-        return dt;
+        return DT;
     }
 
     public synchronized void setBounds(final Boundary bounds) {

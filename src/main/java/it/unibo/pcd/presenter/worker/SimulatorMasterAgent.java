@@ -46,15 +46,15 @@ public class SimulatorMasterAgent extends Agent {
         final int chunkSize = (bodies.size() + nWorker - 1) / nWorker;
         for (int i = 0; i < nWorker; i++) {
             nextStep.add(new Semaphore(0));
-            int start = i * chunkSize;
-            int end = Math.min(start + chunkSize, bodies.size());
+            final int start = i * chunkSize;
+            final int end = Math.min(start + chunkSize, bodies.size());
             workersPools.add(new SimulatorWorkerAgent(nextStep.get(i), stepDone, barrier, start, end, bodies));
         }
     }
 
     private void doSimulation() {
         long iter = 0;
-        World world = World.getInstance();
+        final World world = World.getInstance();
         final long realDt = 20;
         long tStart;
         long tEnd;
@@ -97,5 +97,13 @@ public class SimulatorMasterAgent extends Agent {
 
         workersPools.forEach(SimulatorWorkerAgent::stopWorker); //Terminate all worker threads
         nextStep.forEach(Semaphore::release); // This prevent deadlock (thanks JPF :))
+        try {
+            for (final SimulatorWorkerAgent worker : workersPools) {
+                worker.join();
+            }
+        } catch (InterruptedException ex) {
+            log("Error on joining workers");
+        }
+
     }
 }

@@ -9,7 +9,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
@@ -34,11 +33,11 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
         addWindowListener(new WindowAdapter(){
             @Override
             public void windowClosing(final WindowEvent ev){
-                System.exit(-1);
+                Runtime.getRuntime().exit(0);
             }
             @Override
             public void windowClosed(final WindowEvent ev){
-                System.exit(-1);
+                Runtime.getRuntime().exit(0);
             }
         });
         setVisible(true);
@@ -100,7 +99,7 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
             g2.drawString("Bodies: " + bodies.size() + " - vt: " + time + " - nIter: " + nIter, 2, 20);
         }
 
-         void display(final List<Body> bodies, final double vt, final long iter){
+         protected void display(final List<Body> bodies, final double vt, final long iter){
             this.bodies = bodies;
             this.vt = vt;
             this.nIter = iter;
