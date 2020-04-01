@@ -14,6 +14,8 @@ public class SimulatorMasterAgent extends Agent {
     private final List<Body> bodies;
     private final int nWorker;
 
+    private final List<Long> stepTimes = new ArrayList<>();
+
     private final List<Semaphore> nextStep;
     private final List<SimulatorWorkerAgent> workersPools;
     private final ResettableCountDownLatch stepDone;
@@ -64,10 +66,7 @@ public class SimulatorMasterAgent extends Agent {
         while (iter < world.getIterationsNumber()) {
             tStart = System.currentTimeMillis();
             stepDone.reset(); // Reset latch count for next step
-            log("Latch reset");
-
             nextStep.forEach(Semaphore::release); // Unlock all waiting worker threads
-            log("Workers spawned");
 
             // Waiting all threads
             try {
@@ -85,6 +84,7 @@ public class SimulatorMasterAgent extends Agent {
                 }
                 tEnd = System.currentTimeMillis();
                 log("Elapsed: " + (tEnd-tStart));
+                stepTimes.add((tEnd-tStart));
                 if ((tEnd-tStart) < realDt) {
                     Thread.sleep(realDt - (tEnd - tStart));
                 } else {
@@ -105,5 +105,8 @@ public class SimulatorMasterAgent extends Agent {
             log("Error on joining workers");
         }
 
+        final double avgTime = (double) stepTimes.stream().reduce(0L, Long::sum) / stepTimes.size();
+
+        log("Average timer per step: " + avgTime + " ms");
     }
 }
