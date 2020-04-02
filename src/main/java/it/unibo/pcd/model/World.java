@@ -5,7 +5,7 @@ public final class World {
     private long iterationsNumber = -1;
     private Boundary bounds;
     private final static double DT = 0.1;
-    private static volatile World instance;
+    private static World instance;
 
     private World() { }
 

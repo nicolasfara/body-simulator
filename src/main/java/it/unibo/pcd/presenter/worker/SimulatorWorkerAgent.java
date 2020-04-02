@@ -1,6 +1,7 @@
 package it.unibo.pcd.presenter.worker;
 
 import it.unibo.pcd.model.Body;
+import it.unibo.pcd.model.Boundary;
 import it.unibo.pcd.model.World;
 import it.unibo.pcd.presenter.worker.util.ResettableCountDownLatch;
 
@@ -34,7 +35,8 @@ public class SimulatorWorkerAgent extends Agent {
         super.run();
         super.log("From " + start + " to " + end);
 
-        World world = World.getInstance();
+        final World world = World.getInstance();
+        final Boundary bounds = world.getBounds(); //Since the boundary is not modified... save the instance for performance purpose
 
         while (isRunning) {
             try {
@@ -58,14 +60,14 @@ public class SimulatorWorkerAgent extends Agent {
                     }
                 }
 
-                barrier.await();
+                //barrier.await();
 
                 /* check boundaries */
                 for (int i = start; i < end; i++) {
-                    bodies.get(i).checkAndSolveBoundaryCollision(world.getBounds());
+                    bodies.get(i).checkAndSolveBoundaryCollision(bounds);
                 }
 
-                stepDone.down(); // Finish the step... synchronize with other threads and master
+                stepDone.down(); // Finish the step... synchronize with master
 
             } catch (InterruptedException ex) {
                 log("Interrupted. Terminating");

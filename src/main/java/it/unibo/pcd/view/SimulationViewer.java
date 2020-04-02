@@ -45,8 +45,8 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
 
     private void display(final List<Body> bodies, final double vt, final long iter){
         try {
-            //SwingUtilities.invokeAndWait(() -> panel.display(bodies, vt, iter));
-            SwingUtilities.invokeLater(() -> panel.display(bodies, vt, iter));
+            SwingUtilities.invokeAndWait(() -> panel.display(bodies, vt, iter));
+            //SwingUtilities.invokeLater(() -> panel.display(bodies, vt, iter));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

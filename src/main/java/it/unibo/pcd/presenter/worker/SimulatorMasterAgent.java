@@ -57,7 +57,6 @@ public class SimulatorMasterAgent extends Agent {
     private void doSimulation() {
         long iter = 0;
         final World world = World.getInstance();
-        final long realDt = 20;
         long tStart;
         long tEnd;
 
@@ -68,13 +67,15 @@ public class SimulatorMasterAgent extends Agent {
             stepDone.reset(); // Reset latch count for next step
             nextStep.forEach(Semaphore::release); // Unlock all waiting worker threads
 
-            // Waiting all threads
             try {
-                stepDone.await();
+                stepDone.await(); // Waiting all threads
 
                 /* update virtual time */
                 world.setVirtualTime(world.getVirtualTime() + world.getDt());
                 iter++;
+
+                tEnd = System.currentTimeMillis();
+                log("Elapsed: " + (tEnd-tStart));
 
                 if (mView != null) {
                     mView.updateView(bodies, world.getVirtualTime(), iter);
@@ -82,14 +83,8 @@ public class SimulatorMasterAgent extends Agent {
                 } else {
                     System.out.println("Iteration number: " + iter);
                 }
-                tEnd = System.currentTimeMillis();
-                log("Elapsed: " + (tEnd-tStart));
+
                 stepTimes.add((tEnd-tStart));
-                if ((tEnd-tStart) < realDt) {
-                    Thread.sleep(realDt - (tEnd - tStart));
-                } else {
-                    log("Overrun");
-                }
             } catch (InterruptedException ex) {
                 log("Failing to await stepDone");
             }
@@ -106,7 +101,6 @@ public class SimulatorMasterAgent extends Agent {
         }
 
         final double avgTime = (double) stepTimes.stream().reduce(0L, Long::sum) / stepTimes.size();
-
         log("Average timer per step: " + avgTime + " ms");
     }
 }

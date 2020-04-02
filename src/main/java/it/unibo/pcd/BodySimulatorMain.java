@@ -16,6 +16,6 @@ public final class BodySimulatorMain {
         final SimulatorPresenter presenter = new SimulatorPresenter(viewer, 500);
         viewer.setPresenter(presenter);
 
-        presenter.execute(1_000);
+        presenter.execute(100);
     }
 }

@@ -33,7 +33,8 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
         world.setVirtualTime(0);
         /* set iterations number */
         world.setIterationsNumber(nIterations);
-        final SimulatorMasterAgent masterAgent =  new SimulatorMasterAgent(bodies, Runtime.getRuntime().availableProcessors());
+        final SimulatorMasterAgent masterAgent = new SimulatorMasterAgent(bodies, Runtime.getRuntime().availableProcessors() + 1);
+        //final SimulatorMasterAgent masterAgent = new SimulatorMasterAgent(bodies, 1);
         if (mView != null) {
             masterAgent.setView(mView);
         }
