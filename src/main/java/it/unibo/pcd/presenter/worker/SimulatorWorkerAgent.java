@@ -35,6 +35,7 @@ public class SimulatorWorkerAgent extends Agent {
         while (!stopFlag.isSet()) {
             try {
                 nextStep.acquire();
+
                 for (int i = start; i < end; i++) {
                     for (int j = i + 1; j < bodies.size(); j++) {
                         if (bodies.get(i).collideWith(bodies.get(j))) {

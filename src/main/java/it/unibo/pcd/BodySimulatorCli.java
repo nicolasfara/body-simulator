@@ -6,7 +6,7 @@ public final class BodySimulatorCli {
     private BodySimulatorCli() { }
 
     public static void main(final String[] args) {
-        final SimulatorPresenter presenter = new SimulatorPresenter(500,1000);
+        final SimulatorPresenter presenter = new SimulatorPresenter(500,10);
         presenter.started();
     }
 }

@@ -24,7 +24,7 @@ public class SimulatorMasterAgent extends Agent {
 
     public SimulatorMasterAgent(final String name, final List<Body> bodies, final Flag stopFlag,
                                 final int nIter, final SimulatorContract.View mView, final Boundary bounds) {
-        super(name,stopFlag);
+        super(name, stopFlag);
         this.bodies = bodies;
         this.stopFlag = stopFlag;
         this.iter = nIter;
@@ -49,7 +49,7 @@ public class SimulatorMasterAgent extends Agent {
 
     private void initWorkers() {
 
-        this.nWorker = Runtime.getRuntime().availableProcessors() +1;
+        this.nWorker = Runtime.getRuntime().availableProcessors() + 1;
         log("creating workers " + nWorker);
         nextSteps = new Semaphore[nWorker];
         stepDone = new ResettableLatch(nWorker);
@@ -60,12 +60,12 @@ public class SimulatorMasterAgent extends Agent {
         int from = 0;
         for (int i = 0; i < nWorker; i++) {
             nextSteps[i] = new Semaphore(0);
-           int num = nBodyPerWorker;
-           if( nRem > 0){
-               num ++;
-               nRem --;
-           }
-            workers[i] = new SimulatorWorkerAgent("Worker" + i, from, num,nextSteps[i], stepDone, bodies, stopFlag);
+            int num = nBodyPerWorker;
+            if (nRem > 0) {
+                num++;
+                nRem--;
+            }
+            workers[i] = new SimulatorWorkerAgent("Worker" + i, from, num, nextSteps[i], stepDone, bodies, stopFlag);
             workers[i].start();
             from = from + num;
         }
@@ -82,35 +82,34 @@ public class SimulatorMasterAgent extends Agent {
         super.log("Started.");
 
         /* simulation loop */
-        while (nIterations < iter && !stopFlag.isSet()) {
+        while (nIterations < iter) {
+
             stepDone.reset();
             /* notify workers to make a new step */
-            for (Semaphore s: nextSteps) {
+            for (Semaphore s : nextSteps) {
                 s.release();
             }
             try {
-                /* compute bodies new pos */
-                computePosition(bodies,dt);
                 /* wait for all workers to complete their job */
                 stepDone.await();
-
+                /* compute bodies new pos */
+                computePosition(bodies, dt);
                 /* check boundaries */
                 checkBoundaries(bodies);
-
                 /* update virtual time */
                 vt = vt + dt;
                 iter++;
-
+                super.log("ok");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            chrono.stop();
-            long dt2 = chrono.getTime();
-            double timePerStep = ((double) dt2) / iter;
-            super.log("Done " + iter + " iter with " + bodies.size() + " bodies using " + nWorker + " workers in: " + dt2 + "ms");
-            super.log("- " + timePerStep + " ms per step");
-            System.exit(0);
         }
+        chrono.stop();
+        long dt2 = chrono.getTime();
+        double timePerStep = ((double) dt2) / iter;
+        super.log("Done " + iter + " iter with " + bodies.size() + " bodies using " + nWorker + " workers in: " + dt2 + "ms");
+        super.log("- " + timePerStep + " ms per step");
+        System.exit(0);
     }
 
     private void doSimulationWithGUI() {
@@ -122,7 +121,7 @@ public class SimulatorMasterAgent extends Agent {
         while (nIterations < iter && !stopFlag.isSet()) {
             stepDone.reset();
             /* notify workers to make a new step */
-            for (Semaphore s: nextSteps) {
+            for (Semaphore s : nextSteps) {
                 s.release();
             }
             try {
@@ -131,7 +130,7 @@ public class SimulatorMasterAgent extends Agent {
                 /* wait for all workers to complete their job */
                 stepDone.await();
                 /* compute bodies new pos */
-                computePosition(bodies,dt);
+                computePosition(bodies, dt);
                 /* check boundaries */
                 checkBoundaries(bodies);
                 /* update virtual time */
@@ -145,12 +144,13 @@ public class SimulatorMasterAgent extends Agent {
         super.log("completed.");
     }
 
-    private void computePosition(final List<Body> upBodies,final double dt){
+    private void computePosition(final List<Body> upBodies, final double dt) {
         for (final Body b : upBodies) {
             b.updatePos(dt);
         }
     }
-    private void checkBoundaries(List<Body> cBodies){
+
+    private void checkBoundaries(List<Body> cBodies) {
         for (final Body b : cBodies) {
             b.checkAndSolveBoundaryCollision(bounds);
         }
