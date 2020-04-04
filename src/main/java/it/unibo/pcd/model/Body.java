@@ -17,6 +17,7 @@ public class Body {
     private final Lock velocityWriteLock = velocityReadWriteLock.writeLock();*/
 
     private final Lock velLock = new ReentrantLock(true);
+    private final Lock posLock = new ReentrantLock(true);
 
     public Body(final Position pos, final Velocity vel, final double radius){
         this.pos = pos;
@@ -31,19 +32,31 @@ public class Body {
     public Position getPos() {
         //positionReadLock.lock();
         //try {
-            return pos;
+            //return pos;
         //} finally {
         //    positionReadLock.unlock();
         //}
+        posLock.lock();
+        try {
+          return pos;
+        } finally {
+            posLock.unlock();
+        }
     }
 
     public Velocity getVel(){
         //velocityReadLock.lock();
         //try {
-            return vel;
+            //return vel;
         //} finally {
         //    velocityReadLock.unlock();
         //}
+        velLock.lock();
+        try {
+          return vel;
+        } finally {
+            velLock.unlock();
+        }
     }
 
     /**
@@ -54,12 +67,20 @@ public class Body {
     public void updatePos(final double dt) {
         //positionWriteLock.lock();
         //try {
-            final double newPosX = pos.getX() + vel.getX()*dt;
-            final double newPosY = pos.getY() + vel.getY()*dt;
-            pos.change(newPosX, newPosY);
+            //final double newPosX = pos.getX() + vel.getX()*dt;
+            //final double newPosY = pos.getY() + vel.getY()*dt;
+            //pos.change(newPosX, newPosY);
         //} finally {
         //    positionWriteLock.unlock();
         //}
+        posLock.lock();
+        try {
+            final double newPosX = pos.getX() + vel.getX()*dt;
+            final double newPosY = pos.getY() + vel.getY()*dt;
+            pos.change(newPosX, newPosY);
+        } finally {
+            posLock.unlock();
+        }
     }
 
     /**
@@ -71,10 +92,16 @@ public class Body {
     public void changeVel(final double vx, final double vy) {
         //velocityWriteLock.lock();
         //try {
-            vel.change(vx, vy);
+            //vel.change(vx, vy);
         //} finally {
         //   velocityWriteLock.unlock();
         //}
+        velLock.lock();
+        try {
+          vel.change(vx, vy);
+        } finally {
+            velLock.unlock();
+        }
     }
 
     /**
@@ -83,7 +110,7 @@ public class Body {
      * @param b The body for calculate the distance to.
      * @return The distance from the argument body.
      */
-    public synchronized double getDistance(final Body b) {
+    public double getDistance(final Body b) {
         final double dx = pos.getX() - b.getPos().getX();
         final double dy = pos.getY() - b.getPos().getY();
         return Math.sqrt(dx*dx + dy*dy);

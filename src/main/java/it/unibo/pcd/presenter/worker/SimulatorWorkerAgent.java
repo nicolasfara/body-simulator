@@ -67,7 +67,7 @@ public class SimulatorWorkerAgent extends Agent {
                     bodies.get(i).checkAndSolveBoundaryCollision(bounds);
                 }
 
-                stepDone.down(); // Finish the step... synchronize with master
+              stepDone.down(); // Finish the step... synchronize with master
 
             } catch (InterruptedException ex) {
                 log("Interrupted. Terminating");

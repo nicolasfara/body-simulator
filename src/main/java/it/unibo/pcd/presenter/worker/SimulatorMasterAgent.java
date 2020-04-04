@@ -19,17 +19,23 @@ public class SimulatorMasterAgent extends Agent {
     private final List<Semaphore> nextStep;
     private final List<SimulatorWorkerAgent> workersPools;
     private final ResettableCountDownLatch stepDone;
+    private final ResettableCountDownLatch pauseResume;
     private final CyclicBarrier barrier;
     private transient SimulatorContract.View mView;
+    final Object playPause;
 
-    public SimulatorMasterAgent(final List<Body> bodies, final int nWorker) {
+    private boolean isRunning = true;
+
+    public SimulatorMasterAgent(final List<Body> bodies, final int nWorker, final Object playPause) {
         super("Master");
         this.bodies = bodies;
         this.nWorker = nWorker;
+        this.playPause = playPause;
 
         workersPools = new ArrayList<>(nWorker);
         nextStep = new ArrayList<>(nWorker);
         stepDone = new ResettableCountDownLatch(nWorker);
+        pauseResume = new ResettableCountDownLatch(1);
         barrier = new CyclicBarrier(nWorker);
     }
 
@@ -42,6 +48,16 @@ public class SimulatorMasterAgent extends Agent {
 
     public void setView(final SimulatorContract.View mView) {
         this.mView = mView;
+    }
+
+    public void pauseSim() {
+        log("Pause");
+        isRunning = false;
+    }
+
+    public void resumeSim() {
+        log("Resume");
+        isRunning = true;
     }
 
     private void initWorkers() {
@@ -63,11 +79,16 @@ public class SimulatorMasterAgent extends Agent {
         workersPools.forEach(SimulatorWorkerAgent::start); //Start all worker threads
 
         while (iter < world.getIterationsNumber()) {
-            tStart = System.currentTimeMillis();
-            stepDone.reset(); // Reset latch count for next step
-            nextStep.forEach(Semaphore::release); // Unlock all waiting worker threads
-
             try {
+                synchronized (playPause) {
+                    while (!isRunning) {
+                        playPause.wait();
+                    }
+                }
+
+                tStart = System.currentTimeMillis();
+                stepDone.reset(); // Reset latch count for next step
+                nextStep.forEach(Semaphore::release); // Unlock all waiting worker threads
                 stepDone.await(); // Waiting all threads
 
                 /* update virtual time */
@@ -92,15 +113,15 @@ public class SimulatorMasterAgent extends Agent {
 
         workersPools.forEach(SimulatorWorkerAgent::stopWorker); //Terminate all worker threads
         nextStep.forEach(Semaphore::release); // This prevent deadlock (thanks JPF :))
-        try {
-            for (final SimulatorWorkerAgent worker : workersPools) {
-                worker.join();
-            }
-        } catch (InterruptedException ex) {
-            log("Error on joining workers");
-        }
+        //try {
+        //    for (final SimulatorWorkerAgent worker : workersPools) {
+        //        worker.join();
+        //    }
+        //} catch (InterruptedException ex) {
+        //    log("Error on joining workers");
+        //}
 
-        final double avgTime = (double) stepTimes.stream().reduce(0L, Long::sum) / stepTimes.size();
-        log("Average timer per step: " + avgTime + " ms");
+        //final double avgTime = (double) stepTimes.stream().reduce(0L, Long::sum) / stepTimes.size();
+        //log("Average timer per step: " + avgTime + " ms");
     }
 }
