@@ -13,6 +13,9 @@ before_script:
   #  - echo `pwd` # debug
   #  - echo "$CI_BUILD_NAME, $CI_BUILD_REF_NAME $CI_BUILD_STAGE" # debug
   - export GRADLE_USER_HOME=`pwd`/.gradle
+  - cd .. && git clone https://github.com/micwypych/jpf-config
+  - jpf-config/script.sh
+  - cd java-with-jpf-example
 
 cache:
   paths:
