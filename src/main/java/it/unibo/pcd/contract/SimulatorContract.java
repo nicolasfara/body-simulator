@@ -13,6 +13,8 @@ public interface SimulatorContract {
     }
 
     interface Presenter extends BasePresenter {
+        void pauseSimulation();
+        void resumeSimulation();
         void execute(final long nIterations);
     }
 }
