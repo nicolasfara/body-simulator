@@ -7,8 +7,8 @@ import it.unibo.pcd.presenter.Chrono;
 import it.unibo.pcd.presenter.Flag;
 import it.unibo.pcd.presenter.ResettableLatch;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 
 public class SimulatorMasterAgent extends Agent {
@@ -21,6 +21,7 @@ public class SimulatorMasterAgent extends Agent {
     private transient Boundary bounds;
     private Semaphore[] nextSteps;
     private SimulatorWorkerAgent[] workers;
+    private CyclicBarrier cyclicBarrier;
 
 
     public SimulatorMasterAgent(final String name, final List<Body> bodies, final Flag stopFlag,
@@ -31,7 +32,6 @@ public class SimulatorMasterAgent extends Agent {
         this.iter = nIter;
         this.mView = mView;
         this.bounds = bounds;
-
     }
 
     @Override
@@ -46,7 +46,6 @@ public class SimulatorMasterAgent extends Agent {
         } else {
             doSimulationWithChrono();
         }
-
     }
 
     private void initWorkers() {
@@ -56,7 +55,7 @@ public class SimulatorMasterAgent extends Agent {
         nextSteps = new Semaphore[nWorker];
         stepDone = new ResettableLatch(nWorker);
         workers = new SimulatorWorkerAgent[nWorker];
-
+        this.cyclicBarrier = new CyclicBarrier(nWorker);
         int nBodyPerWorker = bodies.size() / nWorker;
         int nRem = bodies.size() % nWorker;
         int from = 0;
@@ -68,7 +67,7 @@ public class SimulatorMasterAgent extends Agent {
                 nRem--;
             }
             workers[i] = new SimulatorWorkerAgent("Worker" + i, from, num, nextSteps[i],
-                            stepDone, bodies, stopFlag, bounds);
+                            stepDone, bodies, stopFlag, bounds,cyclicBarrier);
             workers[i].start();
             from = from + num;
         }
@@ -103,35 +102,34 @@ public class SimulatorMasterAgent extends Agent {
                 ex.printStackTrace();
             }
         }
+        super.stopFlag.reset();
         chrono.stop();
         long dt2 = chrono.getTime();
         double timePerStep = ((double) dt2) / iter;
         super.log("Done " + iter + " iter with " + bodies.size() + " bodies using " + nWorker + " workers in: " + dt2 + "ms");
         super.log("- " + timePerStep + " ms per step");
         System.exit(0);
+
+
     }
 
     private void doSimulationWithGUI() {
         /* init virtual time */
         double vt = 0;
         final double dt = 0.1;
-        long nIterations = 0;
         /* simulation loop */
-        while (nIterations < iter && !stopFlag.isSet()) {
+        while (!stopFlag.isSet()) {
             stepDone.reset();
             /* notify workers to make a new step */
             for (Semaphore s : nextSteps) {
                 s.release();
             }
             try {
-
-
                 /* wait for all workers to complete their job */
                 stepDone.await();
-
                 /* update virtual time */
                 vt = vt + dt;
-                nIterations++;
+
                 mView.updateView(bodies, vt, iter);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -139,7 +137,5 @@ public class SimulatorMasterAgent extends Agent {
         }
         super.log("completed.");
     }
-
-
 }
 

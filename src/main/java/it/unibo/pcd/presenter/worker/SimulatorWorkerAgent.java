@@ -5,7 +5,10 @@ import it.unibo.pcd.model.Boundary;
 import it.unibo.pcd.presenter.Flag;
 import it.unibo.pcd.presenter.ResettableLatch;
 
+import java.security.cert.CertificateNotYetValidException;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 
 public class SimulatorWorkerAgent extends Agent {
@@ -18,11 +21,12 @@ public class SimulatorWorkerAgent extends Agent {
     private Semaphore nextStep;
     private ResettableLatch stepDone;
     private transient Boundary bounds;
+    private CyclicBarrier cyclicBarrier;
 
 
     public SimulatorWorkerAgent(final String name, final int start, final int end, Semaphore nextStep,
                                 ResettableLatch stepDone, final List<Body> bodies, final Flag stopFlag,
-                                final Boundary bounds) {
+                                final Boundary bounds, final CyclicBarrier cyclicBarrier) {
         super(name,stopFlag);
         this.start = start;
         this.end = end;
@@ -31,19 +35,21 @@ public class SimulatorWorkerAgent extends Agent {
         this.nextStep = nextStep;
         this.stepDone = stepDone;
         this.bounds = bounds;
+        this.cyclicBarrier = cyclicBarrier;
     }
 
     @Override
     public void run() {
-
-        super.log("Working from " + start + " to " + end);
+        int to = start +end - 1;
+        super.log("Working from " + start + " to " + to);
         while (!stopFlag.isSet()) {
             try {
                 nextStep.acquire();
                 /* compute bodies new pos */
-                computePosition(bodies);
+                computePosition(start,to);
 
-                for (int i = start; i <end; i++) {
+                cyclicBarrier.await();
+                for (int i = start; i <to; i++) {
                     for (int j = i + 1; j < bodies.size(); j++) {
                         if (bodies.get(i).collideWith(bodies.get(j))) {
                             Body.solveCollision(bodies.get(i), bodies.get(j));
@@ -51,29 +57,24 @@ public class SimulatorWorkerAgent extends Agent {
                     }
                 }
                 /* check boundaries */
-                checkBoundaries(bodies);
+                checkBoundaries(start,to);
                 stepDone.down();
 
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | BrokenBarrierException e) {
                 e.printStackTrace();
             }
-
-
         }
         super.log("Job completed");
     }
-    private void computePosition(final List<Body> upBodies) {
+    private void computePosition(final int start_, final int to) {
         final double dt = 0.1;
-        for (final Body b : upBodies) {
-            b.updatePos(dt);
+        for (int j = start_; j <to; j++) {
+            bodies.get(j).updatePos(dt);
         }
     }
-
-    private void checkBoundaries(List<Body> cBodies) {
-        for (final Body b : cBodies) {
-            b.checkAndSolveBoundaryCollision(bounds);
+    private void checkBoundaries(final int start_, final int to) {
+        for (int j = start_; j <to; j++) {
+            bodies.get(j).checkAndSolveBoundaryCollision(bounds);
         }
     }
-
-
 }
