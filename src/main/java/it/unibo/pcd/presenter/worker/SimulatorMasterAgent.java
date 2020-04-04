@@ -22,14 +22,16 @@ public class SimulatorMasterAgent extends Agent {
     private Semaphore[] nextSteps;
     private SimulatorWorkerAgent[] workers;
 
+
     public SimulatorMasterAgent(final String name, final List<Body> bodies, final Flag stopFlag,
-                                final int nIter, final SimulatorContract.View mView, final Boundary bounds) {
+                                final int nIter, final SimulatorContract.View mView,  final Boundary bounds) {
         super(name, stopFlag);
         this.bodies = bodies;
         this.stopFlag = stopFlag;
         this.iter = nIter;
         this.mView = mView;
         this.bounds = bounds;
+
     }
 
     @Override
@@ -65,7 +67,8 @@ public class SimulatorMasterAgent extends Agent {
                 num++;
                 nRem--;
             }
-            workers[i] = new SimulatorWorkerAgent("Worker" + i, from, num, nextSteps[i], stepDone, bodies, stopFlag);
+            workers[i] = new SimulatorWorkerAgent("Worker" + i, from, num, nextSteps[i],
+                            stepDone, bodies, stopFlag, bounds);
             workers[i].start();
             from = from + num;
         }
@@ -83,7 +86,6 @@ public class SimulatorMasterAgent extends Agent {
 
         /* simulation loop */
         while (nIterations < iter) {
-
             stepDone.reset();
             /* notify workers to make a new step */
             for (Semaphore s : nextSteps) {
@@ -92,14 +94,11 @@ public class SimulatorMasterAgent extends Agent {
             try {
                 /* wait for all workers to complete their job */
                 stepDone.await();
-                /* compute bodies new pos */
-                computePosition(bodies, dt);
-                /* check boundaries */
-                checkBoundaries(bodies);
+
                 /* update virtual time */
                 vt = vt + dt;
-                iter++;
-                super.log("ok");
+                nIterations++;
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -129,13 +128,10 @@ public class SimulatorMasterAgent extends Agent {
 
                 /* wait for all workers to complete their job */
                 stepDone.await();
-                /* compute bodies new pos */
-                computePosition(bodies, dt);
-                /* check boundaries */
-                checkBoundaries(bodies);
+
                 /* update virtual time */
                 vt = vt + dt;
-                iter++;
+                nIterations++;
                 mView.updateView(bodies, vt, iter);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -144,16 +140,6 @@ public class SimulatorMasterAgent extends Agent {
         super.log("completed.");
     }
 
-    private void computePosition(final List<Body> upBodies, final double dt) {
-        for (final Body b : upBodies) {
-            b.updatePos(dt);
-        }
-    }
 
-    private void checkBoundaries(List<Body> cBodies) {
-        for (final Body b : cBodies) {
-            b.checkAndSolveBoundaryCollision(bounds);
-        }
-    }
 }
 
