@@ -50,7 +50,8 @@ public class SimulatorMasterAgent extends Agent {
 
     private void initWorkers() {
 
-        this.nWorker = Runtime.getRuntime().availableProcessors() + 1;
+       // this.nWorker = Runtime.getRuntime().availableProcessors() + 1;
+        this.nWorker = 1;
         log("creating workers " + nWorker);
         nextSteps = new Semaphore[nWorker];
         stepDone = new ResettableLatch(nWorker);

@@ -22,6 +22,7 @@ public class SimulatorWorkerAgent extends Agent {
     private ResettableLatch stepDone;
     private transient Boundary bounds;
     private CyclicBarrier cyclicBarrier;
+    private int to;
 
 
     public SimulatorWorkerAgent(final String name, final int start, final int end, Semaphore nextStep,
@@ -40,7 +41,7 @@ public class SimulatorWorkerAgent extends Agent {
 
     @Override
     public void run() {
-        int to = start +end - 1;
+        this.to = start + end - 1;
         super.log("Working from " + start + " to " + to);
         while (!stopFlag.isSet()) {
             try {
@@ -48,6 +49,7 @@ public class SimulatorWorkerAgent extends Agent {
                 /* compute bodies new pos */
                 computePosition(start,to);
 
+                /* Every worker have to block here */
                 cyclicBarrier.await();
                 for (int i = start; i <to; i++) {
                     for (int j = i + 1; j < bodies.size(); j++) {

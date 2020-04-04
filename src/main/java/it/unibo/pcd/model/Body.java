@@ -1,9 +1,15 @@
 package it.unibo.pcd.model;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class Body {
     private final Position pos;
     private final Velocity vel;
     private final double radius;
+    private ReentrantLock pLock = new ReentrantLock();
+    private ReentrantLock vLock = new ReentrantLock();
+
 
     public Body(final Position pos, final Velocity vel, final double radius){
         this.pos = pos;
@@ -12,15 +18,30 @@ public class Body {
     }
 
     public double getRadius() {
+
         return radius;
     }
 
     public Position getPos(){
-        return pos;
+       pLock.lock();
+       try {
+           return pos;
+       }finally {
+           pLock.unlock();
+       }
+
+
+
     }
 
     public Velocity getVel(){
-        return vel;
+        vLock.lock();
+        try {
+            return vel;
+        }finally {
+            vLock.unlock();
+        }
+
     }
 
     /**
@@ -29,9 +50,17 @@ public class Body {
      * @param dt time elapsed.
      */
     public void updatePos(final double dt) {
-        final double newPosX = pos.getX() + vel.getX()*dt;
-        final double newPosY = pos.getY() + vel.getY()*dt;
-        pos.change(newPosX, newPosY);
+        //synchronized (pos) {
+        pLock.lock();
+        try{
+            final double newPosX = pos.getX() + vel.getX() * dt;
+            final double newPosY = pos.getY() + vel.getY() * dt;
+            pos.change(newPosX, newPosY);
+        }finally {
+            pLock.unlock();
+        }
+
+
     }
 
     /**
@@ -41,7 +70,16 @@ public class Body {
      * @param vy Velocity on y coordinate.
      */
     public void changeVel(final double vx, final double vy) {
-        vel.change(vx, vy);
+       // synchronized (vel){
+        vLock.lock();
+        try{
+            vel.change(vx, vy);
+        }finally {
+            vLock.unlock();
+        }
+
+
+
     }
 
     /**
@@ -93,7 +131,6 @@ public class Body {
         final Position xB2 = b2.getPos();
         final Velocity vB1 = b1.getVel();
         final Velocity vB2 = b2.getVel();
-
         final Velocity updateVelB1 = updateVelocity(xB1, xB2, vB1, vB2);
         final Velocity updateVelB2 = updateVelocity(xB2, xB1, vB2, vB1);
 
