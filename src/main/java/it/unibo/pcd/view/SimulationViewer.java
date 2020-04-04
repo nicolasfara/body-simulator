@@ -4,9 +4,7 @@ import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.Body;
 import it.unibo.pcd.model.Position;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -18,6 +16,9 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
 
     private final VisualiserPanel panel;
 
+    private final JButton pauseButton =  new JButton("Pause");
+    private final JButton resumeButton = new JButton("Resume");
+
     /**
      * Creates a view of the specified size (in pixels)
      * @param w
@@ -28,8 +29,31 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
         setTitle("Bodies Simulation");
         setSize(w,h);
         setResizable(false);
+
+        JPanel buttonsLayout = new JPanel();
+        buttonsLayout.setLayout(new FlowLayout(FlowLayout.CENTER));
+        buttonsLayout.add(pauseButton);
+        buttonsLayout.add(resumeButton);
         panel = new VisualiserPanel(w,h);
-        getContentPane().add(panel);
+
+        getContentPane().add(panel, BorderLayout.CENTER);
+        getContentPane().add(buttonsLayout, BorderLayout.NORTH);
+
+        resumeButton.setEnabled(false);
+
+        pauseButton.addActionListener(btn -> {
+            mPresenter.pauseSimulation();
+            resumeButton.setEnabled(true);
+            pauseButton.setEnabled(false);
+        });
+
+        resumeButton.addActionListener(act -> {
+            mPresenter.resumeSimulation();
+            pauseButton.setEnabled(true);
+            resumeButton.setEnabled(false);
+        });
+
+
         addWindowListener(new WindowAdapter(){
             @Override
             public void windowClosing(final WindowEvent ev){
@@ -88,15 +112,17 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
                     RenderingHints.VALUE_RENDER_QUALITY);
             g2.clearRect(0,0,this.getWidth(),this.getHeight());
 
-            bodies.parallelStream().forEach(b -> {
-                final Position p = b.getPos();
-                final double rad = b.getRadius();
-                final int x0 = (int)(dx + p.getX()*dx);
-                final int y0 = (int)(dy - p.getY()*dy);
-                g2.drawOval(x0, y0, (int)(rad*dx*2), (int)(rad*dy*2));
-            });
-            final String time = String.format("%.2f", vt);
-            g2.drawString("Bodies: " + bodies.size() + " - vt: " + time + " - nIter: " + nIter, 2, 20);
+            if (bodies != null) {
+                bodies.forEach(b -> {
+                    final Position p = b.getPos();
+                    final double rad = b.getRadius();
+                    final int x0 = (int) (dx + p.getX() * dx);
+                    final int y0 = (int) (dy - p.getY() * dy);
+                    g2.drawOval(x0, y0, (int) (rad * dx * 2), (int) (rad * dy * 2));
+                });
+                final String time = String.format("%.2f", vt);
+                g2.drawString("Bodies: " + bodies.size() + " - vt: " + time + " - nIter: " + nIter, 2, 20);
+            }
         }
 
          protected void display(final List<Body> bodies, final double vt, final long iter){
