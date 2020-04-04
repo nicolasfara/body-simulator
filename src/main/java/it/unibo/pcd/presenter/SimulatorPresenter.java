@@ -9,10 +9,8 @@ import java.util.List;
 
 public class SimulatorPresenter implements SimulatorContract.Presenter {
     private transient SimulatorContract.View mView;
-
-    final SimulatorMasterAgent masterAgent;
+    private final SimulatorMasterAgent masterAgent;
     private final World world;
-    private final Object playPause = new Object();
 
     public SimulatorPresenter(final int bodiesCount) {
         world = World.getInstance();
@@ -20,7 +18,7 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
 
         List<Body> bodies = new ArrayList<>(BodyFactory.getBodiesAtRandomPosition(world.getBounds(), bodiesCount));
 
-        masterAgent = new SimulatorMasterAgent(bodies, Runtime.getRuntime().availableProcessors() + 1, playPause);
+        masterAgent = new SimulatorMasterAgent(bodies, Runtime.getRuntime().availableProcessors() + 1);
     }
 
     public SimulatorPresenter(final SimulatorContract.View mView, final int bodiesCount) {
@@ -36,9 +34,6 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
     @Override
     public void resumeSimulation() {
         masterAgent.resumeSim();
-        synchronized (playPause) {
-            playPause.notifyAll();
-        }
     }
 
     @Override
@@ -47,7 +42,7 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
         world.setVirtualTime(0);
         /* set iterations number */
         world.setIterationsNumber(nIterations);
-        //final SimulatorMasterAgent masterAgent = new SimulatorMasterAgent(bodies, 1);
+
         if (mView != null) {
             masterAgent.setView(mView);
         }

@@ -42,7 +42,7 @@ public class SimulatorWorkerAgent extends Agent {
             try {
                 /* Waiting master to compute next step */
                 nextStep.acquire();
-                if (!isRunning) break; // If the las iteration is occurred, exit from while (prevent deadlock on semaphore)
+                if (!isRunning) continue; // If the las iteration is occurred, exit from while (prevent deadlock on semaphore)
 
                 /* compute bodies new pos */
                 for (int i = start; i < end; i++) {
@@ -59,8 +59,6 @@ public class SimulatorWorkerAgent extends Agent {
                         }
                     }
                 }
-
-                //barrier.await();
 
                 /* check boundaries */
                 for (int i = start; i < end; i++) {

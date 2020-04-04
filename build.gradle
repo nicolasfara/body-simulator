@@ -2,6 +2,7 @@ plugins {
     id 'application'
     id 'java'
     id 'pmd'
+    //id "com.github.upthewaterspout.jpf" version "0.3"
 }
 
 group 'it.unibo.pcd'
@@ -17,15 +18,21 @@ repositories {
 }
 
 dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.24'
     testCompile 'junit:junit:4.12'
     implementation 'org.jetbrains:annotations:15.0'
-    testCompile name: 'jpf'
-    testCompile name: 'jpf-annotations'
+    compile name: 'jpf'
+    compile name: 'jpf-annotations'
 }
 
 application {
     mainClassName = 'it.unibo.pcd.BodySimulatorMain'
 }
+
+/*jpf {
+    downloadUrl='https://github.com/micwypych/jpf-artifacts/raw/master/jpf/jpf-core-r32.zip'
+    properties=['vm.gc': 'true', 'vm.finalize': 'false']
+}*/
 
 pmd {
     consoleOutput = true
