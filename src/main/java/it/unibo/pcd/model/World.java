@@ -3,6 +3,7 @@ package it.unibo.pcd.model;
 public final class World {
     private double virtualTime;
     private long iterationsNumber = -1;
+    private long currentIteration;
     private Boundary bounds;
     private final static double DT = 0.1;
     private static World instance;
@@ -55,5 +56,13 @@ public final class World {
 
     public synchronized Boundary getBounds() {
         return bounds;
+    }
+
+    public synchronized void incrementIteration() {
+        currentIteration++;
+    }
+
+    public synchronized long getCurrentIteration() {
+        return currentIteration;
     }
 }
