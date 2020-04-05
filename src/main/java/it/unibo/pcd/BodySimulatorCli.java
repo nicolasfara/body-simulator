@@ -5,7 +5,7 @@ import it.unibo.pcd.presenter.SimulatorPresenter;
 public final class BodySimulatorCli {
     private BodySimulatorCli() { }
 
-    public static void main(final String[] args) throws InterruptedException {
+    public static void main(final String[] args) {
         final SimulatorPresenter presenter = new SimulatorPresenter(500);
         presenter.execute(100);
     }
