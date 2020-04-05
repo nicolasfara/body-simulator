@@ -18,8 +18,8 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
 
     private final VisualiserPanel panel;
     private JPanel command;
-    private JButton startButton = new JButton("Start");//creating instance of JButton
-    private JButton stopButton = new JButton("Stop");//creating instance of JButton
+    private JButton startButton;
+    private JButton stopButton;
 
     /**
      * Creates a view of the specified size (in pixels)
@@ -31,12 +31,13 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
         super();
         setTitle("Bodies Simulation");
         setSize(w, h +20);
-
         setResizable(false);
         panel = new VisualiserPanel(w, h );
         getContentPane().add(panel);
         this.command = new JPanel();
         this.command.setSize(w,20);
+        this.startButton = new JButton("Start");
+        this.stopButton = new JButton("Stop");
         this.command.add(startButton);
         this.command.add(stopButton);
         this.stopButton.setEnabled(false);

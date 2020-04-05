@@ -120,8 +120,9 @@ public class SimulatorMasterAgent extends Agent {
         /* init virtual time */
         double vt = 0;
         final double dt = 0.1;
+        long nIterations = 0;
         /* simulation loop */
-        while (!stopFlag.isSet()) {
+        while (!stopFlag.isSet() || nIterations < iter) {
             stepDone.reset();
             /* notify workers to make a new step */
             for (Semaphore s : nextSteps) {
@@ -132,8 +133,9 @@ public class SimulatorMasterAgent extends Agent {
                 stepDone.await();
                 /* update virtual time */
                 vt = vt + dt;
+                nIterations++;
 
-                mView.updateView(bodies, vt, iter);
+                mView.updateView(bodies, vt,nIterations);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
