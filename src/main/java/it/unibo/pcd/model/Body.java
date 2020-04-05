@@ -1,6 +1,5 @@
 package it.unibo.pcd.model;
 
-import gov.nasa.jpf.vm.Verify;
 
 import java.util.Map;
 import java.util.Objects;
@@ -14,12 +13,12 @@ public class Body {
     private final Velocity vel;
     private final double radius;
 
-    /*private final ReadWriteLock positionReadWriteLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock positionReadWriteLock = new ReentrantReadWriteLock();
     private final Lock positionReadLock = positionReadWriteLock.readLock();
     private final Lock positionWriteLock = positionReadWriteLock.writeLock();
     private final ReadWriteLock velocityReadWriteLock = new ReentrantReadWriteLock();
     private final Lock velocityReadLock = velocityReadWriteLock.readLock();
-    private final Lock velocityWriteLock = velocityReadWriteLock.writeLock();*/
+    private final Lock velocityWriteLock = velocityReadWriteLock.writeLock();
 
     private static Map<Body, Object> locks = new ConcurrentHashMap<>();
 
@@ -34,21 +33,21 @@ public class Body {
     }
 
     public Position getPos() {
-        //positionReadLock.lock();
-        //try {
-          return pos;
-        //} finally {
-        //    positionReadLock.unlock();
-        //}
+        positionReadLock.lock();
+        try {
+            return pos;
+        } finally {
+            positionReadLock.unlock();
+        }
     }
 
     public Velocity getVel(){
-        //velocityReadLock.lock();
-        //try {
-          return vel;
-        //} finally {
-        //    velocityReadLock.unlock();
-        //}
+        velocityReadLock.lock();
+        try {
+            return vel;
+        } finally {
+            velocityReadLock.unlock();
+        }
     }
 
     /**
@@ -57,16 +56,14 @@ public class Body {
      * @param dt time elapsed.
      */
     public void updatePos(final double dt) {
-        //positionWriteLock.lock();
-        //try {
-        Verify.beginAtomic();
-          final double newPosX = pos.getX() + vel.getX()*dt;
-          final double newPosY = pos.getY() + vel.getY()*dt;
-          pos.change(newPosX, newPosY);
-          Verify.endAtomic();
-        //} finally {
-        //    positionWriteLock.unlock();
-        //}
+        positionWriteLock.lock();
+        try {
+            final double newPosX = pos.getX() + vel.getX()*dt;
+            final double newPosY = pos.getY() + vel.getY()*dt;
+            pos.change(newPosX, newPosY);
+        } finally {
+            positionWriteLock.unlock();
+        }
     }
 
     /**
@@ -76,12 +73,12 @@ public class Body {
      * @param vy Velocity on y coordinate.
      */
     public void changeVel(final double vx, final double vy) {
-        //velocityWriteLock.lock();
-        //try {
-          vel.change(vx, vy);
-        //} finally {
-        //   velocityWriteLock.unlock();
-        //}
+        velocityWriteLock.lock();
+        try {
+            vel.change(vx, vy);
+        } finally {
+            velocityWriteLock.unlock();
+        }
     }
 
     /**
@@ -134,13 +131,13 @@ public class Body {
         Body body = (Body) o;
         return Double.compare(body.radius, radius) == 0 &&
                 Objects.equals(pos, body.pos) &&
-                Objects.equals(vel, body.vel); //&&
-                //Objects.equals(positionReadWriteLock, body.positionReadWriteLock) &&
-                //Objects.equals(positionReadLock, body.positionReadLock) &&
-                //Objects.equals(positionWriteLock, body.positionWriteLock) &&
-                //Objects.equals(velocityReadWriteLock, body.velocityReadWriteLock) &&
-                //Objects.equals(velocityReadLock, body.velocityReadLock) &&
-                //Objects.equals(velocityWriteLock, body.velocityWriteLock);
+                Objects.equals(vel, body.vel) &&
+                Objects.equals(positionReadWriteLock, body.positionReadWriteLock) &&
+                Objects.equals(positionReadLock, body.positionReadLock) &&
+                Objects.equals(positionWriteLock, body.positionWriteLock) &&
+                Objects.equals(velocityReadWriteLock, body.velocityReadWriteLock) &&
+                Objects.equals(velocityReadLock, body.velocityReadLock) &&
+                Objects.equals(velocityWriteLock, body.velocityWriteLock);
     }
 
     @Override
@@ -151,12 +148,12 @@ public class Body {
         result = 31 * result + (vel != null ? vel.hashCode() : 0);
         temp = Double.doubleToLongBits(radius);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        //result = 31 * result + positionReadWriteLock.hashCode();
-        //result = 31 * result + positionReadLock.hashCode();
-        //result = 31 * result + positionWriteLock.hashCode();
-        //result = 31 * result + velocityReadWriteLock.hashCode();
-        //result = 31 * result + velocityReadLock.hashCode();
-        //result = 31 * result + velocityWriteLock.hashCode();
+        result = 31 * result + positionReadWriteLock.hashCode();
+        result = 31 * result + positionReadLock.hashCode();
+        result = 31 * result + positionWriteLock.hashCode();
+        result = 31 * result + velocityReadWriteLock.hashCode();
+        result = 31 * result + velocityReadLock.hashCode();
+        result = 31 * result + velocityWriteLock.hashCode();
         return result;
     }
 
