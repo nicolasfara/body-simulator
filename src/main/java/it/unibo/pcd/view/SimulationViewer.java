@@ -16,8 +16,9 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
 
     private final VisualiserPanel panel;
 
-    private final JButton pauseButton =  new JButton("Pause");
-    private final JButton resumeButton = new JButton("Resume");
+    private final JButton stopButton =  new JButton("Stop");
+    private final JButton startButton = new JButton("Start");
+    private final JButton stepButton = new JButton("Step");
 
     /**
      * Creates a view of the specified size (in pixels)
@@ -32,25 +33,35 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
 
         JPanel buttonsLayout = new JPanel();
         buttonsLayout.setLayout(new FlowLayout(FlowLayout.CENTER));
-        buttonsLayout.add(pauseButton);
-        buttonsLayout.add(resumeButton);
+        buttonsLayout.add(stopButton);
+        buttonsLayout.add(startButton);
+        buttonsLayout.add(stepButton);
         panel = new VisualiserPanel(w,h);
 
         getContentPane().add(panel, BorderLayout.CENTER);
         getContentPane().add(buttonsLayout, BorderLayout.NORTH);
 
-        resumeButton.setEnabled(false);
+        startButton.setEnabled(true);
+        stopButton.setEnabled(false);
 
-        pauseButton.addActionListener(btn -> {
-            mPresenter.pauseSimulation();
-            resumeButton.setEnabled(true);
-            pauseButton.setEnabled(false);
+        stopButton.addActionListener(btn -> {
+            mPresenter.stopSimulation();
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+            stepButton.setEnabled(true);
         });
 
-        resumeButton.addActionListener(act -> {
-            mPresenter.resumeSimulation();
-            pauseButton.setEnabled(true);
-            resumeButton.setEnabled(false);
+        startButton.addActionListener(act -> {
+            mPresenter.startSimulation();
+            stopButton.setEnabled(true);
+            startButton.setEnabled(false);
+            stepButton.setEnabled(false);
+        });
+
+        stepButton.addActionListener(act -> {
+            mPresenter.step();
+            stopButton.setEnabled(false);
+            startButton.setEnabled(true);
         });
 
 
