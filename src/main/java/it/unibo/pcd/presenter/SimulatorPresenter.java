@@ -3,9 +3,12 @@ package it.unibo.pcd.presenter;
 import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.*;
 import it.unibo.pcd.presenter.worker.SimulatorMasterAgent;
+import it.unibo.pcd.presenter.worker.util.ResettableCountDownLatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
 
 public class SimulatorPresenter implements SimulatorContract.Presenter {
     private transient SimulatorContract.View mView;
@@ -27,13 +30,18 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
     }
 
     @Override
-    public void pauseSimulation() {
+    public void stopSimulation() {
         masterAgent.pauseSim();
     }
 
     @Override
-    public void resumeSimulation() {
+    public void startSimulation() {
         masterAgent.resumeSim();
+    }
+
+    @Override
+    public void step() {
+        masterAgent.stepSim();
     }
 
     @Override
