@@ -25,13 +25,19 @@ public class SimulatorMasterAgent extends Agent {
 
 
     public SimulatorMasterAgent(final String name, final List<Body> bodies, final Flag stopFlag,
-                                final int nIter, final SimulatorContract.View mView,  final Boundary bounds) {
+                                final int nIter, final SimulatorContract.View mView,  final Boundary bounds,
+                                final int nWorker) {
         super(name, stopFlag);
         this.bodies = bodies;
         this.stopFlag = stopFlag;
         this.iter = nIter;
         this.mView = mView;
         this.bounds = bounds;
+        this.nWorker = nWorker;
+        nextSteps = new Semaphore[nWorker];
+        stepDone = new ResettableLatch(nWorker);
+        workers = new SimulatorWorkerAgent[nWorker];
+        this.cyclicBarrier = new CyclicBarrier(nWorker);
     }
 
     @Override
@@ -46,17 +52,13 @@ public class SimulatorMasterAgent extends Agent {
         } else {
             doSimulationWithChrono();
         }
+
     }
 
     private void initWorkers() {
 
-       // this.nWorker = Runtime.getRuntime().availableProcessors() + 1;
-        this.nWorker = 1;
+
         log("creating workers " + nWorker);
-        nextSteps = new Semaphore[nWorker];
-        stepDone = new ResettableLatch(nWorker);
-        workers = new SimulatorWorkerAgent[nWorker];
-        this.cyclicBarrier = new CyclicBarrier(nWorker);
         int nBodyPerWorker = bodies.size() / nWorker;
         int nRem = bodies.size() % nWorker;
         int from = 0;

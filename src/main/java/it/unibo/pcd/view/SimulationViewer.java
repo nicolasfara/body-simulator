@@ -4,9 +4,8 @@ import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.Body;
 import it.unibo.pcd.model.Position;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -18,33 +17,56 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
     private SimulatorContract.Presenter mPresenter;
 
     private final VisualiserPanel panel;
+    private JPanel command;
+    private JButton startButton = new JButton("Start");//creating instance of JButton
+    private JButton stopButton = new JButton("Stop");//creating instance of JButton
 
     /**
      * Creates a view of the specified size (in pixels)
+     *
      * @param w
      * @param h
      */
-    public SimulationViewer(final int w, final int h){
+    public SimulationViewer(final int w, final int h) {
         super();
         setTitle("Bodies Simulation");
-        setSize(w,h);
+        setSize(w, h +20);
+
         setResizable(false);
-        panel = new VisualiserPanel(w,h);
+        panel = new VisualiserPanel(w, h );
         getContentPane().add(panel);
-        addWindowListener(new WindowAdapter(){
+        this.command = new JPanel();
+        this.command.setSize(w,20);
+        this.command.add(startButton);
+        this.command.add(stopButton);
+        this.stopButton.setEnabled(false);
+        this.startButton.addActionListener(e -> {
+            mPresenter.started();
+            stopButton.setEnabled(true);
+            startButton.setEnabled(false);
+        });
+        this.stopButton.addActionListener(e->{
+            mPresenter.stopped();
+            stopButton.setEnabled(false);
+            startButton.setEnabled(true);
+
+        });
+        getContentPane().add(command, BorderLayout.SOUTH);
+        addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(final WindowEvent ev){
+            public void windowClosing(final WindowEvent ev) {
                 System.exit(-1);
             }
+
             @Override
-            public void windowClosed(final WindowEvent ev){
+            public void windowClosed(final WindowEvent ev) {
                 System.exit(-1);
             }
         });
         setVisible(true);
     }
 
-    private void display(final List<Body> bodies, final double vt, final long iter){
+    private void display(final List<Body> bodies, final double vt, final long iter) {
         try {
             SwingUtilities.invokeAndWait(() -> panel.display(bodies, vt, iter));
         } catch (Exception ex) {
@@ -68,38 +90,39 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
         private long nIter;
         private double vt;
 
+
         private final long dx;
         private final long dy;
 
-        public VisualiserPanel(final int w, final int h){
+        public VisualiserPanel(final int w, final int h) {
             super();
-            setSize(w,h);
-            dx = w/2 - 20;
-            dy = h/2 - 20;
+            setSize(w, h);
+            dx = w / 2 - 20;
+            dy = h / 2 - 20;
         }
 
         @Override
-        public void paint(final Graphics g){
+        public void paint(final Graphics g) {
             final Graphics2D g2 = (Graphics2D) g;
 
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_RENDERING,
                     RenderingHints.VALUE_RENDER_QUALITY);
-            g2.clearRect(0,0,this.getWidth(),this.getHeight());
+            g2.clearRect(0, 0, this.getWidth(), this.getHeight());
 
             bodies.forEach(b -> {
                 final Position p = b.getPos();
                 final double rad = b.getRadius();
-                final int x0 = (int)(dx + p.getX()*dx);
-                final int y0 = (int)(dy - p.getY()*dy);
-                g2.drawOval(x0,y0, (int)(rad*dx*2), (int)(rad*dy*2));
+                final int x0 = (int) (dx + p.getX() * dx);
+                final int y0 = (int) (dy - p.getY() * dy);
+                g2.drawOval(x0, y0, (int) (rad * dx * 2), (int) (rad * dy * 2));
             });
             final String time = String.format("%.2f", vt);
             g2.drawString("Bodies: " + bodies.size() + " - vt: " + time + " - nIter: " + nIter, 2, 20);
         }
 
-        public void display(final List<Body> bodies, final double vt, final long iter){
+        public void display(final List<Body> bodies, final double vt, final long iter) {
             this.bodies = bodies;
             this.vt = vt;
             this.nIter = iter;

@@ -12,9 +12,8 @@ public final class BodySimulatorMain {
     private BodySimulatorMain() { }
 
     public static void main(final String[] args) {
-        final SimulationViewer viewer = new SimulationViewer(620, 620);
+        final SimulationViewer viewer = new SimulationViewer(620, 640);
         final SimulatorPresenter presenter = new SimulatorPresenter(viewer, 500,10);
         viewer.setPresenter(presenter);
-        presenter.started();
     }
 }

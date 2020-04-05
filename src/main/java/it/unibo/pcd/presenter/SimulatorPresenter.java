@@ -17,6 +17,7 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
     /* Flag start/stop master worker */
     public Flag stopFlag;
     private int nIter;
+    private  int nWorker;
 
     public SimulatorPresenter(final int bodiesCount, final int iter) {
         bounds = new Boundary(-1.0,-1.0,1.0,1.0);
@@ -33,7 +34,8 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
 
     public void started(){
         this.stopFlag = new Flag();
-        new SimulatorMasterAgent("Master",bodies,stopFlag,nIter,mView,bounds).start();
+        this.nWorker = Runtime.getRuntime().availableProcessors() + 1;
+        new SimulatorMasterAgent("Master",bodies,stopFlag,nIter,mView,bounds,nWorker).start();
     }
     public void stopped(){
         this.stopFlag.set();
