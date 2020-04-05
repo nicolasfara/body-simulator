@@ -37,11 +37,11 @@ public class SimulatorWorkerAgent extends Agent {
         this.stepDone = stepDone;
         this.bounds = bounds;
         this.cyclicBarrier = cyclicBarrier;
+        this.to = start + end - 1;
     }
 
     @Override
     public void run() {
-        this.to = start + end - 1;
         super.log("Working from " + start + " to " + to);
         while (!stopFlag.isSet()) {
             try {

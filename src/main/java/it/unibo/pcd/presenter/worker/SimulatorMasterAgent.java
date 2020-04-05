@@ -52,13 +52,11 @@ public class SimulatorMasterAgent extends Agent {
         } else {
             doSimulationWithChrono();
         }
-
     }
 
     private void initWorkers() {
 
-
-        log("creating workers " + nWorker);
+        super.log("creating workers " + nWorker);
         int nBodyPerWorker = bodies.size() / nWorker;
         int nRem = bodies.size() % nWorker;
         int from = 0;
@@ -105,15 +103,12 @@ public class SimulatorMasterAgent extends Agent {
                 ex.printStackTrace();
             }
         }
-        super.stopFlag.reset();
         chrono.stop();
         long dt2 = chrono.getTime();
         double timePerStep = ((double) dt2) / iter;
         super.log("Done " + iter + " iter with " + bodies.size() + " bodies using " + nWorker + " workers in: " + dt2 + "ms");
         super.log("- " + timePerStep + " ms per step");
         System.exit(0);
-
-
     }
 
     private void doSimulationWithGUI() {

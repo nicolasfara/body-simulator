@@ -29,9 +29,6 @@ public class Body {
        }finally {
            pLock.unlock();
        }
-
-
-
     }
 
     public Velocity getVel(){
@@ -41,7 +38,6 @@ public class Body {
         }finally {
             vLock.unlock();
         }
-
     }
 
     /**
@@ -59,8 +55,6 @@ public class Body {
         }finally {
             pLock.unlock();
         }
-
-
     }
 
     /**
@@ -77,9 +71,6 @@ public class Body {
         }finally {
             vLock.unlock();
         }
-
-
-
     }
 
     /**
