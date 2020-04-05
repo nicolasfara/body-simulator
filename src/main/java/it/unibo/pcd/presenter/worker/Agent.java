@@ -5,7 +5,6 @@ import it.unibo.pcd.presenter.Flag;
 public abstract class Agent extends Thread {
     protected Flag stopFlag;
     public Agent(String name, Flag stopFlag) {
-
         super(name);
         this.stopFlag = stopFlag;
     }

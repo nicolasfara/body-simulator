@@ -6,6 +6,9 @@ import it.unibo.pcd.presenter.worker.SimulatorMasterAgent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SimulatorPresenter implements SimulatorContract.Presenter {
     private transient SimulatorContract.View mView;
@@ -17,10 +20,11 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
     /* Flag start/stop master worker */
     public Flag stopFlag;
     private int nIter;
-    private  int nWorker;
+    private int nWorker;
+    SimulatorMasterAgent master;
 
     public SimulatorPresenter(final int bodiesCount, final int iter) {
-        bounds = new Boundary(-1.0,-1.0,1.0,1.0);
+        bounds = new Boundary(-1.0, -1.0, 1.0, 1.0);
         bodies = new ArrayList<>();
         this.nIter = iter;
         this.mView = null;
@@ -28,16 +32,23 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
     }
 
     public SimulatorPresenter(final SimulatorContract.View mView, final int bodiesCount, final int iter) {
-        this(bodiesCount,iter);
+        this(bodiesCount, iter);
         this.mView = mView;
     }
 
-    public void started(){
+    public void started() {
         this.stopFlag = new Flag();
         this.nWorker = Runtime.getRuntime().availableProcessors() + 1;
-        new SimulatorMasterAgent("Master",bodies,stopFlag,nIter,mView,bounds,nWorker).start();
+        master = new SimulatorMasterAgent("Master", bodies, stopFlag, nIter, mView, bounds, nWorker);
+        master.start();
     }
-    public void stopped(){
-        this.stopFlag.set();
+
+    public void stopped() {
+        //this.stopFlag.set();
+        this.master.stopped();
+    }
+
+    public void step() {
+        this.master.stepByStepCommand();
     }
 }

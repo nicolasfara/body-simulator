@@ -20,6 +20,7 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
     private JPanel command;
     private JButton startButton;
     private JButton stopButton;
+    private JButton stepButton;
 
     /**
      * Creates a view of the specified size (in pixels)
@@ -38,19 +39,27 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
         this.command.setSize(w,20);
         this.startButton = new JButton("Start");
         this.stopButton = new JButton("Stop");
+        this.stepButton = new JButton("Step");
         this.command.add(startButton);
         this.command.add(stopButton);
+        this.command.add(stepButton);
         this.stopButton.setEnabled(false);
+        this.stepButton.setEnabled(false);
         this.startButton.addActionListener(e -> {
             mPresenter.started();
             stopButton.setEnabled(true);
             startButton.setEnabled(false);
+            stepButton.setEnabled(true);
         });
         this.stopButton.addActionListener(e->{
             mPresenter.stopped();
             stopButton.setEnabled(false);
             startButton.setEnabled(true);
-
+            stepButton.setEnabled(true);
+        });
+        this.stepButton.addActionListener(e->{
+             mPresenter.step();
+             startButton.setEnabled(true);
         });
         getContentPane().add(command, BorderLayout.SOUTH);
         addWindowListener(new WindowAdapter() {

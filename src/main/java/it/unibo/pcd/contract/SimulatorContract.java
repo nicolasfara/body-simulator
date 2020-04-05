@@ -15,5 +15,6 @@ public interface SimulatorContract {
     interface Presenter extends BasePresenter {
         void started();
         void stopped();
+        void step();
     }
 }

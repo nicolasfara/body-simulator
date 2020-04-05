@@ -10,6 +10,9 @@ import it.unibo.pcd.presenter.ResettableLatch;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SimulatorMasterAgent extends Agent {
     private List<Body> bodies;
@@ -22,10 +25,13 @@ public class SimulatorMasterAgent extends Agent {
     private Semaphore[] nextSteps;
     private SimulatorWorkerAgent[] workers;
     private CyclicBarrier cyclicBarrier;
+    private Object stepByStep;
+    private Boolean step;
+    private Boolean isStepped;
 
 
     public SimulatorMasterAgent(final String name, final List<Body> bodies, final Flag stopFlag,
-                                final int nIter, final SimulatorContract.View mView,  final Boundary bounds,
+                                final int nIter, final SimulatorContract.View mView, final Boundary bounds,
                                 final int nWorker) {
         super(name, stopFlag);
         this.bodies = bodies;
@@ -38,6 +44,22 @@ public class SimulatorMasterAgent extends Agent {
         stepDone = new ResettableLatch(nWorker);
         workers = new SimulatorWorkerAgent[nWorker];
         this.cyclicBarrier = new CyclicBarrier(nWorker);
+
+        this.stepByStep = new Object();
+        this.step = false;
+        this.isStepped = false;
+    }
+
+    public void stepByStepCommand() {
+        this.step = true;
+        this.isStepped = true;
+        synchronized (stepByStep) {
+            stepByStep.notifyAll();
+        }
+    }
+
+    public void stopped() {
+        this.step = false;
     }
 
     @Override
@@ -46,9 +68,13 @@ public class SimulatorMasterAgent extends Agent {
         super.log("Init workers...");
         initWorkers();
         super.log("Starting simulation...");
-
+        this.step = true;
         if (mView != null) {
-            doSimulationWithGUI();
+            try {
+                doSimulationWithGUI();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } else {
             doSimulationWithChrono();
         }
@@ -68,7 +94,7 @@ public class SimulatorMasterAgent extends Agent {
                 nRem--;
             }
             workers[i] = new SimulatorWorkerAgent("Worker" + i, from, num, nextSteps[i],
-                            stepDone, bodies, stopFlag, bounds,cyclicBarrier);
+                    stepDone, bodies, stopFlag, bounds, cyclicBarrier);
             workers[i].start();
             from = from + num;
         }
@@ -111,14 +137,20 @@ public class SimulatorMasterAgent extends Agent {
         System.exit(0);
     }
 
-    private void doSimulationWithGUI() {
+    private void doSimulationWithGUI() throws InterruptedException {
         /* init virtual time */
         double vt = 0;
         final double dt = 0.1;
         long nIterations = 0;
         /* simulation loop */
-        while (!stopFlag.isSet() || nIterations < iter) {
+        //|| !stopFlag.isSet() || !stepFlag.isSet()
+        while (nIterations < iter || !stopFlag.isSet()) {
             stepDone.reset();
+            synchronized (stepByStep) {
+                while (!step) {
+                    stepByStep.wait();
+                }
+            }
             /* notify workers to make a new step */
             for (Semaphore s : nextSteps) {
                 s.release();
@@ -130,10 +162,14 @@ public class SimulatorMasterAgent extends Agent {
                 vt = vt + dt;
                 nIterations++;
 
-                mView.updateView(bodies, vt,nIterations);
+                mView.updateView(bodies, vt, nIterations);
+                if (isStepped) {
+                    this.step = false;
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+
         }
         super.log("completed.");
     }

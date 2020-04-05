@@ -17,6 +17,7 @@ public class SimulatorWorkerAgent extends Agent {
     private final int end;
     private final List<Body> bodies;
     private Flag stopFlag;
+    private Flag stepFlag;
     /* for coordination with the master */
     private Semaphore nextStep;
     private ResettableLatch stepDone;
@@ -65,6 +66,7 @@ public class SimulatorWorkerAgent extends Agent {
             } catch (InterruptedException | BrokenBarrierException e) {
                 e.printStackTrace();
             }
+
         }
         super.log("Job completed");
     }
