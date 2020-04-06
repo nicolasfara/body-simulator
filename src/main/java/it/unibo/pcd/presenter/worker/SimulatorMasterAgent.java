@@ -3,6 +3,7 @@ package it.unibo.pcd.presenter.worker;
 import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.Body;
 import it.unibo.pcd.model.World;
+import it.unibo.pcd.presenter.worker.util.Chrono;
 import it.unibo.pcd.presenter.worker.util.ResettableCountDownLatch;
 
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public class SimulatorMasterAgent extends Agent {
 
     private final World world = World.getInstance();
 
+    Chrono chrono = new Chrono();
+
     public SimulatorMasterAgent(final List<Body> bodies, final int nWorker) {
         super("Master");
         this.bodies = bodies;
@@ -48,6 +51,7 @@ public class SimulatorMasterAgent extends Agent {
         super.run();
         initWorkers();
         startWorkers();
+        chrono.start();
 
         while (world.getCurrentIteration() < world.getIterationsNumber()) {
             if (mView != null) {
@@ -64,11 +68,16 @@ public class SimulatorMasterAgent extends Agent {
 
             } else {
                 doSimulationStep();
-                log("Step: " + world.getCurrentIteration());
             }
         }
         workersPools.forEach(SimulatorWorkerAgent::stopWorker); //Terminate all worker threads
         nextStep.forEach(Semaphore::release); // This prevent deadlock (thanks JPF :))
+        chrono.stop();
+        long dt2 = chrono.getTime();
+        double timePerStep = ((double) dt2) / world.getIterationsNumber();
+        super.log("Done " + world.getIterationsNumber() + " iter with " + bodies.size() + " bodies using "
+                + nWorker + " workers in: " + dt2 + "ms");
+        super.log("- " + timePerStep + " ms per step");
     }
 
     public void setView(final SimulatorContract.View mView) {
