@@ -3,12 +3,9 @@ package it.unibo.pcd.presenter;
 import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.*;
 import it.unibo.pcd.presenter.worker.SimulatorMasterAgent;
-import it.unibo.pcd.presenter.worker.util.ResettableCountDownLatch;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.Semaphore;
 
 public class SimulatorPresenter implements SimulatorContract.Presenter {
     private transient SimulatorContract.View mView;
@@ -19,7 +16,7 @@ public class SimulatorPresenter implements SimulatorContract.Presenter {
         world = World.getInstance();
         world.setBounds(new Boundary(-1.0,-1.0,1.0,1.0));
 
-        List<Body> bodies = new ArrayList<>(BodyFactory.getBodiesAtRandomPosition(world.getBounds(), bodiesCount));
+        final List<Body> bodies = new ArrayList<>(BodyFactory.getBodiesAtRandomPosition(world.getBounds(), bodiesCount));
 
         masterAgent = new SimulatorMasterAgent(bodies, Runtime.getRuntime().availableProcessors() + 1);
     }

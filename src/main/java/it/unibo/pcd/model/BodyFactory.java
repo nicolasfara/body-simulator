@@ -3,8 +3,6 @@ package it.unibo.pcd.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class BodyFactory {
     private static final Random RANDOM = new Random(System.currentTimeMillis());
@@ -16,9 +14,6 @@ public final class BodyFactory {
     }
 
     public static List<Body> getBodiesAtRandomPosition(final Boundary bounds, final int number) {
-        /*return Stream.generate(() -> new Body(getRandomPosition(bounds), getRandomVelocity(), 0.01))
-                .limit(number)
-                .collect(Collectors.toList());*/
         final List<Body> list = new ArrayList<>();
         for (int i = 0; i < number; i++) {
             list.add(new Body(getRandomPosition(bounds), getRandomVelocity(), 0.01));

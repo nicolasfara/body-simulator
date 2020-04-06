@@ -24,8 +24,8 @@ public class SimulatorMasterAgent extends Agent {
     private final CyclicBarrier barrier;
     private transient SimulatorContract.View mView;
 
-    private boolean isRunning = false;
-    private boolean isStepByStep = false;
+    private boolean isRunning;
+    private boolean isStepByStep;
     private boolean nextStepFlag = true;
 
     private final Lock simulationLock =  new ReentrantLock();
@@ -33,7 +33,7 @@ public class SimulatorMasterAgent extends Agent {
 
     private final World world = World.getInstance();
 
-    Chrono chrono = new Chrono();
+    private final Chrono chrono = new Chrono();
 
     public SimulatorMasterAgent(final List<Body> bodies, final int nWorker) {
         super("Master");
@@ -73,8 +73,8 @@ public class SimulatorMasterAgent extends Agent {
         workersPools.forEach(SimulatorWorkerAgent::stopWorker); //Terminate all worker threads
         nextStep.forEach(Semaphore::release); // This prevent deadlock (thanks JPF :))
         chrono.stop();
-        long dt2 = chrono.getTime();
-        double timePerStep = ((double) dt2) / world.getIterationsNumber();
+        final long dt2 = chrono.getTime();
+        final double timePerStep = ((double) dt2) / world.getIterationsNumber();
         super.log("Done " + world.getIterationsNumber() + " iter with " + bodies.size() + " bodies using "
                 + nWorker + " workers in: " + dt2 + "ms");
         super.log("- " + timePerStep + " ms per step");
@@ -148,7 +148,7 @@ public class SimulatorMasterAgent extends Agent {
         * The intent of this check is to manage only one condition variable to play/pause the simulator ether for
         * play/pause mode or step-by-step mode, for optimisation.
         */
-        while (!isRunning || (isStepByStep & nextStepFlag)) {
+        while (!isRunning || isStepByStep & nextStepFlag) {
             pauseCond.await();
         }
         simulationLock.unlock();

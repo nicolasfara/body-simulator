@@ -35,8 +35,8 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
         setSize(w,h);
         setResizable(false);
 
-        JPanel buttonsLayout = new JPanel();
-        JPanel infoPanel = new JPanel();
+        final JPanel buttonsLayout = new JPanel();
+        final JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         buttonsLayout.setLayout(new FlowLayout(FlowLayout.CENTER));
         infoPanel.add(bodiesLabel);
@@ -110,18 +110,18 @@ public class SimulationViewer extends JFrame implements SimulatorContract.View {
     }
 
     @Override
-    public void updateBodies(List<Body> bodies) {
+    public void updateBodies(final List<Body> bodies) {
         bodiesLabel.setText("Bodies: " + bodies.size());
         display(bodies);
     }
 
     @Override
-    public void updateVt(double vt) {
+    public void updateVt(final double vt) {
         displayVt(vt);
     }
 
     @Override
-    public void updateIter(long iter) {
+    public void updateIter(final long iter) {
         displayIter(iter);
     }
 

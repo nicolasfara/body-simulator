@@ -18,8 +18,8 @@ public class SimulatorWorkerAgent extends Agent {
     private final Semaphore nextStep;
     private final ResettableCountDownLatch stepDone;
     private final CyclicBarrier barrier;
-    final World world = World.getInstance();
-    final Boundary bounds = world.getBounds(); //Since the boundary is not modified... save the instance for performance purpose
+    private final World world = World.getInstance();
+    private final Boundary bounds = world.getBounds(); //Since the boundary is not modified... save the instance for performance purpose
 
     public SimulatorWorkerAgent(final Semaphore nextStep, final ResettableCountDownLatch stepDone, final CyclicBarrier barrier,
                                 final int start, final int end, final List<Body> bodies) {
@@ -42,7 +42,9 @@ public class SimulatorWorkerAgent extends Agent {
             try {
                 /* Waiting master to compute next step */
                 nextStep.acquire();
-                if (!isRunning) continue; // If the las iteration is occurred, exit from while (prevent deadlock on semaphore)
+                if (!isRunning) {
+                    continue; // If the las iteration is occurred, exit from while (prevent deadlock on semaphore)
+                }
 
                 /* compute bodies new pos */
                 updatePositions();

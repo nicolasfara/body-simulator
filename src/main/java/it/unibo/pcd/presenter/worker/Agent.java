@@ -2,7 +2,7 @@ package it.unibo.pcd.presenter.worker;
 
 public abstract class Agent extends Thread {
 
-    public Agent(String name) {
+    public Agent(final String name) {
         super(name);
     }
 

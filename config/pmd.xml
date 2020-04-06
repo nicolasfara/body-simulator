@@ -79,7 +79,7 @@
         <exclude name="CloneThrowsCloneNotSupportedException" />
         <exclude name="DoNotCallSystemExit" />
         <exclude name="DataflowAnomalyAnalysis"/>
-        <exclude name="InvalidSlf4jMessageFormat" />
+        <!--exclude name="InvalidSlf4jMessageFormat" /-->
         <!--exclude name="NullAssignment" /-->
         <exclude name="ProperCloneImplementation" />
         <exclude name="ReturnEmptyArrayRatherThanNull" />

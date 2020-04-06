@@ -1,25 +1,15 @@
 package it.unibo.pcd.model;
 
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Body {
     private final Position pos;
     private final Velocity vel;
     private final double radius;
-
-/*    private final ReadWriteLock positionReadWriteLock = new ReentrantReadWriteLock();
-    private final Lock positionReadLock = positionReadWriteLock.readLock();
-    private final Lock positionWriteLock = positionReadWriteLock.writeLock();
-    private final ReadWriteLock velocityReadWriteLock = new ReentrantReadWriteLock();
-    private final Lock velocityReadLock = velocityReadWriteLock.readLock();
-    private final Lock velocityWriteLock = velocityReadWriteLock.writeLock();*/
 
     private final Lock positionLock = new ReentrantLock();
     private final Lock velocityLock = new ReentrantLock();
@@ -37,12 +27,6 @@ public class Body {
     }
 
     public Position getPos() {
-        /*positionReadLock.lock();
-        try {
-            return pos;
-        } finally {
-            positionReadLock.unlock();
-        }*/
         positionLock.lock();
         try {
             return pos;
@@ -52,12 +36,6 @@ public class Body {
     }
 
     public Velocity getVel(){
-        /*velocityReadLock.lock();
-        try {
-            return vel;
-        } finally {
-            velocityReadLock.unlock();
-        }*/
         velocityLock.lock();
         try {
             return vel;
@@ -72,14 +50,6 @@ public class Body {
      * @param dt time elapsed.
      */
     public void updatePos(final double dt) {
-        /*positionWriteLock.lock();
-        try {
-            final double newPosX = pos.getX() + vel.getX()*dt;
-            final double newPosY = pos.getY() + vel.getY()*dt;
-            pos.change(newPosX, newPosY);
-        } finally {
-            positionWriteLock.unlock();
-        }*/
         positionLock.lock();
         try {
             final double newPosX = pos.getX() + vel.getX()*dt;
@@ -97,12 +67,6 @@ public class Body {
      * @param vy Velocity on y coordinate.
      */
     public void changeVel(final double vx, final double vy) {
-        /*velocityWriteLock.lock();
-        try {
-            vel.change(vx, vy);
-        } finally {
-            velocityWriteLock.unlock();
-        }*/
         velocityLock.lock();
         try {
             vel.change(vx, vy);
@@ -155,36 +119,24 @@ public class Body {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Body body = (Body) o;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Body body = (Body) o;
         return Double.compare(body.radius, radius) == 0 &&
                 Objects.equals(pos, body.pos) &&
-                Objects.equals(vel, body.vel); // &&
-                /*Objects.equals(positionReadWriteLock, body.positionReadWriteLock) &&
-                Objects.equals(positionReadLock, body.positionReadLock) &&
-                Objects.equals(positionWriteLock, body.positionWriteLock) &&
-                Objects.equals(velocityReadWriteLock, body.velocityReadWriteLock) &&
-                Objects.equals(velocityReadLock, body.velocityReadLock) &&
-                Objects.equals(velocityWriteLock, body.velocityWriteLock);*/
+                Objects.equals(vel, body.vel) &&
+                Objects.equals(positionLock, body.positionLock) &&
+                Objects.equals(velocityLock, body.velocityLock);
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        result = pos != null ? pos.hashCode() : 0;
-        result = 31 * result + (vel != null ? vel.hashCode() : 0);
-        temp = Double.doubleToLongBits(radius);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        /*result = 31 * result + positionReadWriteLock.hashCode();
-        result = 31 * result + positionReadLock.hashCode();
-        result = 31 * result + positionWriteLock.hashCode();
-        result = 31 * result + velocityReadWriteLock.hashCode();
-        result = 31 * result + velocityReadLock.hashCode();
-        result = 31 * result + velocityWriteLock.hashCode();*/
-        return result;
+        return Objects.hash(pos, vel, radius, positionLock, velocityLock);
     }
 
     public static void solveCollision(final Body b1, final Body b2) {
