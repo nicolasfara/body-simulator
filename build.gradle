@@ -2,6 +2,7 @@ plugins {
     id 'application'
     id 'java'
     id 'pmd'
+    id "com.github.upthewaterspout.jpf" version "0.3"
 }
 
 group 'it.unibo.pcd'
@@ -11,16 +12,36 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    //flatDir {
+    //    dirs 'libs'
+    //}
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile 'org.slf4j:slf4j-api:1.7.24'
+    testCompile 'junit:junit:4.12'
     implementation 'org.jetbrains:annotations:15.0'
+    //compile name: 'jpf'
+    //compile name: 'jpf-annotations'
 }
 
 application {
     mainClassName = 'it.unibo.pcd.BodySimulatorMain'
 }
+
+jpf {
+    downloadUrl='https://github.com/micwypych/jpf-artifacts/raw/master/jpf/jpf-core-r32.zip'
+    installDir=".jpf"
+    properties=['cg.enumerate_random': 'true', 'race.exclude': 'java.*']
+}
+
+task cleanJpf(type: Delete) {
+    doLast {
+        project.delete 'jpf.properties'
+    }
+}
+clean.dependsOn cleanJpf
+generateJpfProperties.dependsOn cleanJpf
 
 pmd {
     consoleOutput = true

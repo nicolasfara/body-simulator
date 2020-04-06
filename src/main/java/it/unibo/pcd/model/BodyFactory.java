@@ -19,7 +19,7 @@ public final class BodyFactory {
         /*return Stream.generate(() -> new Body(getRandomPosition(bounds), getRandomVelocity(), 0.01))
                 .limit(number)
                 .collect(Collectors.toList());*/
-        List<Body> list = new ArrayList<>();
+        final List<Body> list = new ArrayList<>();
         for (int i = 0; i < number; i++) {
             list.add(new Body(getRandomPosition(bounds), getRandomVelocity(), 0.01));
         }

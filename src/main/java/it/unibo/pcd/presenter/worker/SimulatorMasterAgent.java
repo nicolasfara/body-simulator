@@ -1,41 +1,147 @@
 package it.unibo.pcd.presenter.worker;
 
+import it.unibo.pcd.contract.SimulatorContract;
 import it.unibo.pcd.model.Body;
+import it.unibo.pcd.model.World;
+import it.unibo.pcd.presenter.worker.util.ResettableCountDownLatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SimulatorMasterAgent extends Agent {
-    private List<Body> bodies;
+    private final List<Body> bodies;
     private final int nWorker;
-    private final List<SimulatorWorkerAgent> workersPools;
 
-    public SimulatorMasterAgent(final String name, final List<Body> bodies, final int nWorker) {
-        super(name);
+    private final List<Semaphore> nextStep;
+    private final List<SimulatorWorkerAgent> workersPools;
+    private final ResettableCountDownLatch stepDone;
+    private final CyclicBarrier barrier;
+    private transient SimulatorContract.View mView;
+
+    private boolean isRunning = false;
+    private boolean isStepByStep = false;
+    private boolean nextStepFlag = true;
+
+    private final Lock simulationLock =  new ReentrantLock();
+    private final Condition pauseCond = simulationLock.newCondition();
+
+    private final World world = World.getInstance();
+
+    public SimulatorMasterAgent(final List<Body> bodies, final int nWorker) {
+        super("Master");
         this.bodies = bodies;
         this.nWorker = nWorker;
+
         workersPools = new ArrayList<>(nWorker);
+        nextStep = new ArrayList<>(nWorker);
+        stepDone = new ResettableCountDownLatch(nWorker);
+        barrier = new CyclicBarrier(nWorker);
     }
 
     @Override
     public void run() {
         super.run();
-
         initWorkers();
+        startWorkers();
+
+        while (world.getCurrentIteration() < world.getIterationsNumber()) {
+            if (mView != null) {
+                try {
+                    canGoOn();
+                } catch (InterruptedException ex) {
+                    log("interrupted");
+                }
+
+                doSimulationStep();
+                mView.updateBodies(bodies);
+                mView.updateIter(world.getCurrentIteration());
+                mView.updateVt(world.getVirtualTime());
+
+            } else {
+                doSimulationStep();
+                log("Step: " + world.getCurrentIteration());
+            }
+        }
+        workersPools.forEach(SimulatorWorkerAgent::stopWorker); //Terminate all worker threads
+        nextStep.forEach(Semaphore::release); // This prevent deadlock (thanks JPF :))
+    }
+
+    public void setView(final SimulatorContract.View mView) {
+        this.mView = mView;
+    }
+
+    public void pauseSim() {
+        isRunning = false;
+    }
+
+    public void resumeSim() {
+        simulationLock.lock();
+        isStepByStep = false;
+        isRunning = true;
+
+        pauseCond.signal();
+        simulationLock.unlock();
+    }
+
+    public void stepSim() {
+        simulationLock.lock();
+        isStepByStep = true;
+        isRunning = true;
+        nextStepFlag = false;
+
+        pauseCond.signal();
+        simulationLock.unlock();
     }
 
     private void initWorkers() {
+        final int chunkSize = (bodies.size() + nWorker - 1) / nWorker;
         for (int i = 0; i < nWorker; i++) {
-            int start = (bodies.size() - 1) * i / nWorker;
-            int end = (bodies.size() - 1) * (i+1) / nWorker;
-            workersPools.add(new SimulatorWorkerAgent("Worker" + i, start, end, bodies));
+            nextStep.add(new Semaphore(0));
+            final int start = i * chunkSize;
+            final int end = Math.min(start + chunkSize, bodies.size());
+            workersPools.add(new SimulatorWorkerAgent(nextStep.get(i), stepDone, barrier, start, end, bodies));
         }
     }
 
-    private void doSimulation() {
-        /*
-        * while (iter < nIter)
-        *   latch.countDown()
-        *   latch.reset*/
+    private void startWorkers() {
+        workersPools.forEach(SimulatorWorkerAgent::start);
+    }
+
+    private void doSimulationStep() {
+        try {
+            stepDone.reset(); // Reset latch count for next step
+            nextStep.forEach(Semaphore::release); // Unlock all waiting worker threads
+            stepDone.await(); // Waiting all workers
+
+            /* update virtual time */
+            world.setVirtualTime(world.getVirtualTime() + world.getDt());
+            world.incrementIteration();
+
+            nextStepFlag = true; // Setup next step mode
+        } catch (InterruptedException ex) {
+            log("Failing to await stepDone");
+        }
+    }
+
+    private void canGoOn() throws InterruptedException {
+        simulationLock.lock();
+        /* Manage both play/pause and step-by-step mode
+        *
+        * (isStepByStep & netStepFlag) manage the case where step-by-step mode is on and we compute next step:
+        * isStepByStep = true -- nextStepFlag = false (set by stepSim()) the AND is = false and we can go on to
+        * compute the next simulation step.
+        *
+        * The intent of this check is to manage only one condition variable to play/pause the simulator ether for
+        * play/pause mode or step-by-step mode, for optimisation.
+        */
+        while (!isRunning || (isStepByStep & nextStepFlag)) {
+            pauseCond.await();
+        }
+        simulationLock.unlock();
     }
 }
