@@ -9,7 +9,9 @@ import java.util.List;
 public interface SimulatorContract {
 
     interface View extends BaseView<Presenter> {
-        void updateView(final List<Body> bodies, final double vt, final long iter);
+        void updateBodies(final List<Body> bodies);
+        void updateVt(double vt);
+        void updateIter(long iter);
     }
 
     interface Presenter extends BasePresenter {

@@ -18,6 +18,8 @@ public class SimulatorWorkerAgent extends Agent {
     private final Semaphore nextStep;
     private final ResettableCountDownLatch stepDone;
     private final CyclicBarrier barrier;
+    final World world = World.getInstance();
+    final Boundary bounds = world.getBounds(); //Since the boundary is not modified... save the instance for performance purpose
 
     public SimulatorWorkerAgent(final Semaphore nextStep, final ResettableCountDownLatch stepDone, final CyclicBarrier barrier,
                                 final int start, final int end, final List<Body> bodies) {
@@ -35,8 +37,6 @@ public class SimulatorWorkerAgent extends Agent {
         super.run();
         super.log("From " + start + " to " + end);
 
-        final World world = World.getInstance();
-        final Boundary bounds = world.getBounds(); //Since the boundary is not modified... save the instance for performance purpose
 
         while (isRunning) {
             try {
@@ -45,25 +45,15 @@ public class SimulatorWorkerAgent extends Agent {
                 if (!isRunning) continue; // If the las iteration is occurred, exit from while (prevent deadlock on semaphore)
 
                 /* compute bodies new pos */
-                for (int i = start; i < end; i++) {
-                    bodies.get(i).updatePos(world.getDt());
-                }
+                updatePositions();
 
                 barrier.await();
 
                 /* manage collision */
-                for (int i = start; i < end; i++) {
-                    for (int j = i + 1; j < bodies.size(); j++) {
-                        if (bodies.get(i).collideWith(bodies.get(j))) {
-                            Body.solveCollision(bodies.get(i), bodies.get(j));
-                        }
-                    }
-                }
+                manageCollisions();
 
                 /* check boundaries */
-                for (int i = start; i < end; i++) {
-                    bodies.get(i).checkAndSolveBoundaryCollision(bounds);
-                }
+                checkBoundaries();
 
               stepDone.down(); // Finish the step... synchronize with master
 
@@ -77,5 +67,27 @@ public class SimulatorWorkerAgent extends Agent {
 
     public void stopWorker() {
         isRunning = false;
+    }
+
+    private void updatePositions() {
+        for (int i = start; i < end; i++) {
+            bodies.get(i).updatePos(world.getDt());
+        }
+    }
+
+    private void manageCollisions() {
+        for (int i = start; i < end; i++) {
+            for (int j = i + 1; j < bodies.size(); j++) {
+                if (bodies.get(i).collideWith(bodies.get(j))) {
+                    Body.solveCollision(bodies.get(i), bodies.get(j));
+                }
+            }
+        }
+    }
+
+    private void checkBoundaries() {
+        for (int i = start; i < end; i++) {
+            bodies.get(i).checkAndSolveBoundaryCollision(bounds);
+        }
     }
 }

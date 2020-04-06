@@ -58,7 +58,10 @@ public class SimulatorMasterAgent extends Agent {
                 }
 
                 doSimulationStep();
-                mView.updateView(bodies, world.getVirtualTime(), world.getCurrentIteration());
+                mView.updateBodies(bodies);
+                mView.updateIter(world.getCurrentIteration());
+                mView.updateVt(world.getVirtualTime());
+
             } else {
                 doSimulationStep();
                 log("Step: " + world.getCurrentIteration());
