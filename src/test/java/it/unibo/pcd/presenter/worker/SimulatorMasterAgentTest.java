@@ -1,6 +1,5 @@
 package it.unibo.pcd.presenter.worker;
 
-import gov.nasa.jpf.annotation.JPFConfig;
 import it.unibo.pcd.model.Body;
 import it.unibo.pcd.model.BodyFactory;
 import it.unibo.pcd.model.Boundary;
@@ -12,7 +11,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-@JPFConfig({"listener+=,gov.nasa.jpf.listener.PreciseRaceDetector"})
 public class SimulatorMasterAgentTest extends TestJPF {
     private SimulatorMasterAgent masterAgent;
 
