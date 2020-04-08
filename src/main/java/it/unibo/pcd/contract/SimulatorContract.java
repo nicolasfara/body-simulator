@@ -19,5 +19,6 @@ public interface SimulatorContract {
         void startSimulation();
         void step();
         void execute(final long nIterations);
+        double getLastExecutionTime();
     }
 }

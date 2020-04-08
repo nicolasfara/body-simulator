@@ -1,1 +1,2 @@
+target=it.unibo.pcd.BodySimulatorCli
 listener=gov.nasa.jpf.listener.PreciseRaceDetector

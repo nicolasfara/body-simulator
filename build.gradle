@@ -12,17 +12,12 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    //flatDir {
-    //    dirs 'libs'
-    //}
 }
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.24'
     testCompile 'junit:junit:4.12'
     implementation 'org.jetbrains:annotations:15.0'
-    //compile name: 'jpf'
-    //compile name: 'jpf-annotations'
 }
 
 application {
@@ -45,8 +40,7 @@ generateJpfProperties.dependsOn cleanJpf
 
 pmd {
     consoleOutput = true
-    toolVersion = "6.21.0"
-    rulePriority = 5
+    toolVersion = "6.22.0"
     ruleSetFiles = files("config/pmd.xml")
     //ruleSets = ["category/java/errorprone.xml", "category/java/bestpractices.xml"]
 }

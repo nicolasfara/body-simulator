@@ -13,7 +13,7 @@ public final class BodySimulatorMain {
 
     public static void main(final String[] args) {
         final SimulationViewer viewer = new SimulationViewer(620, 620);
-        final SimulatorPresenter presenter = new SimulatorPresenter(viewer, 200);
+        final SimulatorPresenter presenter = new SimulatorPresenter(viewer, 200, Runtime.getRuntime().availableProcessors());
         viewer.setPresenter(presenter);
 
         presenter.execute(1000);

@@ -34,6 +34,7 @@ public class SimulatorMasterAgent extends Agent {
     private final World world = World.getInstance();
 
     private final Chrono chrono = new Chrono();
+    private double lastIterationTime = 0;
 
     public SimulatorMasterAgent(final List<Body> bodies, final int nWorker) {
         super("Master");
@@ -75,6 +76,7 @@ public class SimulatorMasterAgent extends Agent {
         chrono.stop();
         final long dt2 = chrono.getTime();
         final double timePerStep = ((double) dt2) / world.getIterationsNumber();
+        lastIterationTime = timePerStep;
         super.log("Done " + world.getIterationsNumber() + " iter with " + bodies.size() + " bodies using "
                 + nWorker + " workers in: " + dt2 + "ms");
         super.log("- " + timePerStep + " ms per step");
@@ -105,6 +107,10 @@ public class SimulatorMasterAgent extends Agent {
 
         pauseCond.signal();
         simulationLock.unlock();
+    }
+
+    public double getLastIterationTime() {
+        return lastIterationTime;
     }
 
     private void initWorkers() {
