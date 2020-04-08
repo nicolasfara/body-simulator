@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SimulatorWorkerAgent extends Agent {
-    private boolean isRunning = true;
+    private AtomicBoolean isRunning = new AtomicBoolean(true);
     private final int start;
     private final int end;
     private final List<Body> bodies;
@@ -37,12 +38,11 @@ public class SimulatorWorkerAgent extends Agent {
         super.run();
         super.log("From " + start + " to " + end);
 
-
-        while (isRunning) {
+        while (isRunning.get()) {
             try {
                 /* Waiting master to compute next step */
                 nextStep.acquire();
-                if (!isRunning) {
+                if (!isRunning.get()) {
                     continue; // If the las iteration is occurred, exit from while (prevent deadlock on semaphore)
                 }
 
@@ -57,7 +57,7 @@ public class SimulatorWorkerAgent extends Agent {
                 /* check boundaries */
                 checkBoundaries();
 
-              stepDone.down(); // Finish the step... synchronize with master
+                stepDone.down(); // Finish the step... synchronize with master
 
             } catch (InterruptedException ex) {
                 log("Interrupted. Terminating");
@@ -68,7 +68,7 @@ public class SimulatorWorkerAgent extends Agent {
     }
 
     public void stopWorker() {
-        isRunning = false;
+        isRunning.set(false);
     }
 
     private void updatePositions() {
