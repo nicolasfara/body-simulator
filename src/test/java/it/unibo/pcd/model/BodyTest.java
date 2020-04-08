@@ -1,24 +1,13 @@
 package it.unibo.pcd.model;
 
-import gov.nasa.jpf.tool.Run;
 import gov.nasa.jpf.util.test.TestJPF;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.junit.Assert.*;
 
 public class BodyTest extends TestJPF {
 
     private final Body body = new Body(new Position(2.3, 4.5), new Velocity(0.1, 4.0), 0.01);
-
-    @Before
-    public void init() {
-
-    }
 
     @Test
     public void getRadius() {

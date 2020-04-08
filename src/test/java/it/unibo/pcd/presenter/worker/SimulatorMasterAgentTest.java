@@ -23,10 +23,10 @@ public class SimulatorMasterAgentTest extends TestJPF {
     public void masterAgentRaceConditionCheck() throws InterruptedException {
         final World world = World.getInstance();
         world.setVirtualTime(0);
-        world.setIterationsNumber(30);
+        world.setIterationsNumber(2);
         world.setBounds(new Boundary(-1.0,-1.0,1.0,1.0));
-        final List<Body> bodies = BodyFactory.getBodiesAtRandomPosition(world.getBounds(), 500);
-        masterAgent = new SimulatorMasterAgent(bodies, 8);
+        final List<Body> bodies = BodyFactory.getBodiesAtRandomPosition(world.getBounds(), 4);
+        masterAgent = new SimulatorMasterAgent(bodies, 2);
         if (verifyNoPropertyViolation("listener=gov.nasa.jpf.listener.PreciseRaceDetector")) {
             masterAgent.start();
         }
