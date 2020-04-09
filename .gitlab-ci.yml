@@ -16,6 +16,7 @@ before_script:
   - ls .
   - ls ..
   - cd .. && wget https://raw.githubusercontent.com/micwypych/jpf-config/master/script.sh
+  - chmod +x script.sh
   - ./script.sh
   - cd body-simulator
 
