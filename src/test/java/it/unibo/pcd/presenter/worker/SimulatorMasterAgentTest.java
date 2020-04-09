@@ -23,7 +23,7 @@ public class SimulatorMasterAgentTest extends TestJPF {
     public void masterAgentRaceConditionCheck() {
         final World world = World.getInstance();
         world.setVirtualTime(0);
-        world.setIterationsNumber(2);
+        world.setIterationsNumber(1);
         world.setBounds(new Boundary(-1.0,-1.0,1.0,1.0));
         final List<Body> bodies = BodyFactory.getBodiesAtRandomPosition(world.getBounds(), 4);
         masterAgent = new SimulatorMasterAgent(bodies, 2);
