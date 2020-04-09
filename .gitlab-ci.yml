@@ -15,9 +15,9 @@ before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
   - ls .
   - ls ..
-  - cd .. && git clone https://github.com/micwypych/jpf-config
-  - jpf-config/script.sh
-  - cd java-with-jpf-example
+  - cd .. && wget https://raw.githubusercontent.com/micwypych/jpf-config/master/script.sh
+  - script.sh
+  - cd body-simulator
 
 build:
   stage: build

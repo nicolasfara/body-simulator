@@ -20,7 +20,7 @@ public class SimulatorMasterAgentTest extends TestJPF {
     }
 
     @Test
-    public void masterAgentRaceConditionCheck() throws InterruptedException {
+    public void masterAgentRaceConditionCheck() {
         final World world = World.getInstance();
         world.setVirtualTime(0);
         world.setIterationsNumber(2);
