@@ -29,6 +29,7 @@ public class SimulatorMasterAgentTest extends TestJPF {
         masterAgent = new SimulatorMasterAgent(bodies, 2);
         if (verifyNoPropertyViolation("listener=gov.nasa.jpf.listener.PreciseRaceDetector")) {
             masterAgent.start();
+            new Thread(() -> masterAgent.pauseSim());
         }
     }
 }

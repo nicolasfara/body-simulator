@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,7 +25,7 @@ public class SimulatorMasterAgent extends Agent {
     private final CyclicBarrier barrier;
     private transient SimulatorContract.View mView;
 
-    private boolean isRunning;
+    private AtomicBoolean isRunning = new AtomicBoolean();
     private boolean isStepByStep;
     private boolean nextStepFlag = true;
 
@@ -87,13 +88,13 @@ public class SimulatorMasterAgent extends Agent {
     }
 
     public void pauseSim() {
-        isRunning = false;
+        isRunning.set(false);
     }
 
     public void resumeSim() {
         simulationLock.lock();
         isStepByStep = false;
-        isRunning = true;
+        isRunning.set(true);
 
         pauseCond.signal();
         simulationLock.unlock();
@@ -102,7 +103,7 @@ public class SimulatorMasterAgent extends Agent {
     public void stepSim() {
         simulationLock.lock();
         isStepByStep = true;
-        isRunning = true;
+        isRunning.set(true);
         nextStepFlag = false;
 
         pauseCond.signal();
@@ -154,7 +155,7 @@ public class SimulatorMasterAgent extends Agent {
         * The intent of this check is to manage only one condition variable to play/pause the simulator ether for
         * play/pause mode or step-by-step mode, for optimisation.
         */
-        while (!isRunning || isStepByStep & nextStepFlag) {
+        while (!isRunning.get() || isStepByStep & nextStepFlag) {
             pauseCond.await();
         }
         simulationLock.unlock();
