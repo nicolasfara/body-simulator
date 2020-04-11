@@ -12,46 +12,40 @@ import java.util.List;
 
 public class SimulationGui extends Thread  {
 
-    private SimulatorContract.Presenter mPresenter;
-    private List<Runnable> startListeners;
-    private List<Runnable> stopListeners;
-    private List<Runnable> stepListeners;
-    public SimulationGui(SimulatorContract.Presenter mPresenter) {
+    private final SimulatorContract.Presenter mPresenter;
+    private final List<Runnable> startListeners;
+    private final List<Runnable> stopListeners;
+    private final List<Runnable> stepListeners;
+    public SimulationGui(final SimulatorContract.Presenter mPresenter) {
         this.mPresenter = mPresenter;
         this.stopListeners = new ArrayList<>();
         this.startListeners = new ArrayList<>();
         this.stepListeners = new ArrayList<>();
     }
+
     @Override
     public void run() {
-
         super.run();
         Verify.beginAtomic();
-        for(Runnable l :stopListeners){
-            Verify.endAtomic();
+        for(Runnable l : stopListeners){
             l.run();
-            Verify.beginAtomic();
         }
-        for(Runnable l :startListeners){
-            Verify.endAtomic();
+        for(Runnable l : startListeners){
             l.run();
-            Verify.beginAtomic();
         }
-        for(Runnable l :stepListeners){
-            Verify.endAtomic();
+        for(Runnable l : stepListeners){
             l.run();
-            Verify.beginAtomic();
         }
         Verify.endAtomic();
-
     }
+
     public void addStartListener(){
-        this.startListeners.add(() -> mPresenter.startSimulation());
+        this.startListeners.add(mPresenter::startSimulation);
     }
     public void addStopListener(){
-        this.stopListeners.add(() -> mPresenter.stopSimulation());
+        this.stopListeners.add(mPresenter::stopSimulation);
     }
     public void addStepListener(){
-        this.stepListeners.add(() -> mPresenter.stopSimulation());
+        this.stepListeners.add(mPresenter::stopSimulation);
     }
 }

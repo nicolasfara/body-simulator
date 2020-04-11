@@ -4,9 +4,9 @@ import gov.nasa.jpf.util.test.TestJPF;
 import it.unibo.pcd.presenter.SimulatorPresenter;
 import org.junit.Test;
 
-public class SimulationGuiTest  extends TestJPF {
-    final SimulatorPresenter presenter = new SimulatorPresenter( 4, 2);
-    final SimulationGui gui = new SimulationGui(presenter);
+public class SimulationGuiTest extends TestJPF {
+    private final SimulatorPresenter presenter = new SimulatorPresenter( 4, 2);
+    private final SimulationGui gui = new SimulationGui(presenter);
 
     @Test
     public void testStartStop(){
@@ -29,6 +29,4 @@ public class SimulationGuiTest  extends TestJPF {
 
         }
     }
-
-
 }
